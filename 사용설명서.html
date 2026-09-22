@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>캡처도구 사용설명서</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@400;600;800&family=IBM+Plex+Sans+KR:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;600&display=swap">
+
+<style>
+:root {
+  --ground: #ffffff;
+  --surface: #f3f6fb;
+  --surface-2: #e8eef8;
+  --line: #d5deeb;
+  --line-soft: #e6ecf5;
+  --ink: #151a22;
+  --ink-2: #465064;
+  --ink-3: #6f7b91;
+  --accent: #1b4fd8;
+  --accent-ink: #123bab;
+  --accent-wash: #e3ebfd;
+  --mark: #c8372c;
+  --mark-wash: #fbe9e7;
+  --shadow: 0 1px 2px rgba(18, 32, 60, .06), 0 8px 24px rgba(18, 32, 60, .05);
+
+  --f-display: "Gothic A1", "Malgun Gothic", "맑은 고딕", system-ui, sans-serif;
+  --f-body: "IBM Plex Sans KR", "Malgun Gothic", "맑은 고딕", system-ui, sans-serif;
+  --f-mono: "IBM Plex Mono", "D2Coding", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ground: #0f1219;
+    --surface: #171c26;
+    --surface-2: #1f2632;
+    --line: #2c3543;
+    --line-soft: #232b38;
+    --ink: #e7ecf5;
+    --ink-2: #b0bccf;
+    --ink-3: #808da3;
+    --accent: #7aa4ff;
+    --accent-ink: #a3c1ff;
+    --accent-wash: #1a2440;
+    --mark: #ff8a7d;
+    --mark-wash: #2e1c1a;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 8px 24px rgba(0, 0, 0, .3);
+  }
+}
+:root[data-theme="dark"] {
+  --ground: #0f1219;
+  --surface: #171c26;
+  --surface-2: #1f2632;
+  --line: #2c3543;
+  --line-soft: #232b38;
+  --ink: #e7ecf5;
+  --ink-2: #b0bccf;
+  --ink-3: #808da3;
+  --accent: #7aa4ff;
+  --accent-ink: #a3c1ff;
+  --accent-wash: #1a2440;
+  --mark: #ff8a7d;
+  --mark-wash: #2e1c1a;
+  --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 8px 24px rgba(0, 0, 0, .3);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--f-body);
+  font-weight: 400;
+  font-size: 16.5px;
+  line-height: 1.75;
+  -webkit-font-smoothing: antialiased;
+}
+
+.wrap {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 28px 96px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0 56px;
+}
+@media (min-width: 1020px) {
+  .wrap { grid-template-columns: 216px minmax(0, 1fr); }
+  .masthead { grid-column: 1 / -1; }
+}
+
+/* ---------------------------------------------------------- 머리말 */
+.masthead {
+  padding: 72px 0 40px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 48px;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 26px;
+}
+.brand svg { flex: none; display: block; }
+.brand-text { display: flex; flex-direction: column; gap: 2px; }
+.brand-name {
+  font-family: var(--f-display);
+  font-weight: 800;
+  font-size: 21px;
+  letter-spacing: -.01em;
+  line-height: 1.2;
+}
+.brand-sub {
+  font-size: 13px;
+  color: var(--ink-3);
+  font-family: var(--f-mono);
+  letter-spacing: .02em;
+}
+h1 {
+  font-family: var(--f-display);
+  font-weight: 800;
+  font-size: clamp(34px, 5.4vw, 52px);
+  line-height: 1.18;
+  letter-spacing: -.025em;
+  margin: 0 0 18px;
+  text-wrap: balance;
+}
+.lede {
+  font-size: 18.5px;
+  line-height: 1.7;
+  color: var(--ink-2);
+  max-width: 40em;
+  margin: 0 0 30px;
+  font-weight: 300;
+}
+.lede strong { font-weight: 600; color: var(--ink); }
+
+.facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.fact {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 7px 14px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  font-size: 13.5px;
+  color: var(--ink-2);
+}
+.fact b {
+  font-family: var(--f-display);
+  font-weight: 600;
+  color: var(--ink);
+}
+
+/* ------------------------------------------------------------ 목차 */
+nav.toc {
+  display: none;
+  font-size: 14px;
+}
+@media (min-width: 1020px) {
+  nav.toc {
+    display: block;
+    position: sticky;
+    top: 32px;
+    align-self: start;
+    max-height: calc(100vh - 64px);
+    overflow-y: auto;
+  }
+}
+.toc-label {
+  font-family: var(--f-mono);
+  font-size: 11px;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin-bottom: 14px;
+}
+.toc ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 3px; }
+.toc a {
+  display: block;
+  padding: 5px 12px;
+  color: var(--ink-2);
+  text-decoration: none;
+  border-left: 2px solid var(--line-soft);
+  transition: color .15s, border-color .15s;
+}
+.toc a:hover, .toc a:focus-visible {
+  color: var(--accent-ink);
+  border-left-color: var(--accent);
+}
+
+/* ------------------------------------------------------------ 본문 */
+main { max-width: 70ch; }
+section { margin-bottom: 64px; scroll-margin-top: 24px; }
+
+h2 {
+  font-family: var(--f-display);
+  font-weight: 800;
+  font-size: 27px;
+  letter-spacing: -.02em;
+  line-height: 1.3;
+  margin: 0 0 8px;
+  text-wrap: balance;
+}
+h2 + .section-note {
+  color: var(--ink-3);
+  font-size: 15px;
+  margin: 0 0 26px;
+}
+h2:not(:has(+ .section-note)) { margin-bottom: 22px; }
+
+h3 {
+  font-family: var(--f-display);
+  font-weight: 600;
+  font-size: 17.5px;
+  letter-spacing: -.01em;
+  margin: 34px 0 10px;
+}
+p { margin: 0 0 16px; }
+a { color: var(--accent-ink); }
+strong { font-weight: 600; }
+
+ul.plain { margin: 0 0 18px; padding-left: 1.15em; }
+ul.plain li { margin-bottom: 7px; }
+ul.plain li::marker { color: var(--ink-3); }
+
+/* ------------------------------------------------------- 시작 단계 */
+ol.steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 20px; counter-reset: s; }
+ol.steps > li {
+  counter-increment: s;
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  gap: 18px;
+  align-items: start;
+}
+ol.steps > li::before {
+  content: counter(s);
+  font-family: var(--f-mono);
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 32px;
+  text-align: center;
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: var(--accent-wash);
+  color: var(--accent-ink);
+}
+ol.steps h3 { margin: 3px 0 4px; font-size: 16.5px; }
+ol.steps p { margin: 0; color: var(--ink-2); font-size: 15.5px; }
+
+/* ---------------------------------------------------------- 키 표기 */
+kbd {
+  font-family: var(--f-mono);
+  font-size: 12.5px;
+  font-weight: 600;
+  line-height: 1;
+  padding: 5px 8px 6px;
+  border: 1px solid var(--line);
+  border-bottom-width: 2px;
+  border-radius: 5px;
+  background: var(--surface);
+  color: var(--ink);
+  white-space: nowrap;
+  display: inline-block;
+}
+.combo { display: inline-flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+.combo span { color: var(--ink-3); font-size: 12px; }
+
+table.keys {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0 0 8px;
+  font-size: 15px;
+}
+table.keys th {
+  text-align: left;
+  font-family: var(--f-mono);
+  font-size: 11px;
+  letter-spacing: .13em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  font-weight: 400;
+  padding: 0 0 10px;
+  border-bottom: 1px solid var(--line);
+}
+table.keys td {
+  padding: 11px 0;
+  border-bottom: 1px solid var(--line-soft);
+  vertical-align: top;
+}
+table.keys td:first-child { width: 46%; padding-right: 18px; }
+table.keys td.what { color: var(--ink-2); }
+.scroll-x { overflow-x: auto; }
+
+/* ------------------------------------------------------------ 카드 */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(206px, 1fr));
+  gap: 1px;
+  background: var(--line-soft);
+  border: 1px solid var(--line-soft);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.grid .cell { background: var(--ground); padding: 15px 16px 16px; }
+.cell-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 5px;
+}
+.cell-head b {
+  font-family: var(--f-display);
+  font-weight: 600;
+  font-size: 15.5px;
+}
+.cell p { margin: 0; font-size: 14px; line-height: 1.6; color: var(--ink-2); }
+
+/* ------------------------------------------------------------ 강조 */
+.callout {
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--accent);
+  background: var(--surface);
+  border-radius: 0 8px 8px 0;
+  padding: 16px 20px;
+  margin: 22px 0;
+  font-size: 15.5px;
+}
+.callout.warn { border-left-color: var(--mark); background: var(--mark-wash); }
+.callout p:last-child { margin-bottom: 0; }
+.callout .tag {
+  display: block;
+  font-family: var(--f-mono);
+  font-size: 11px;
+  letter-spacing: .13em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin-bottom: 6px;
+}
+
+/* --------------------------------------------------------- 문제해결 */
+dl.trouble { margin: 0; display: grid; gap: 2px; }
+dl.trouble dt {
+  font-family: var(--f-display);
+  font-weight: 600;
+  font-size: 16px;
+  padding: 18px 0 6px;
+  border-top: 1px solid var(--line-soft);
+}
+dl.trouble dd { margin: 0 0 12px; color: var(--ink-2); font-size: 15.5px; }
+
+code.path {
+  font-family: var(--f-mono);
+  font-size: 13.5px;
+  background: var(--surface-2);
+  padding: 2px 6px;
+  border-radius: 4px;
+  word-break: break-all;
+}
+
+footer {
+  border-top: 1px solid var(--line);
+  padding-top: 24px;
+  color: var(--ink-3);
+  font-size: 14px;
+}
+
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 3px; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+@media print {
+  nav.toc { display: none; }
+  .wrap { grid-template-columns: 1fr; }
+  section { break-inside: avoid; }
+}
+</style>
+
+</head>
+<body>
+<div class="wrap">
+
+  <header class="masthead">
+    <div class="brand">
+      <svg width="44" height="44" viewBox="0 0 44 44" aria-hidden="true">
+        <defs>
+          <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#3b82f6"/>
+            <stop offset="1" stop-color="#1d4ed8"/>
+          </linearGradient>
+        </defs>
+        <rect width="44" height="44" rx="10" fill="url(#g)"/>
+        <g stroke="#fff" stroke-width="3.2" stroke-linecap="round" fill="none">
+          <path d="M11 17.5V11h6.5M33 17.5V11h-6.5M11 26.5V33h6.5M33 26.5V33h-6.5"/>
+        </g>
+        <circle cx="22" cy="22" r="2.9" fill="#ef4444"/>
+      </svg>
+      <div class="brand-text">
+        <span class="brand-name">캡처도구</span>
+        <span class="brand-sub">v1.10.0 · Windows 10 / 11 (64비트)</span>
+      </div>
+    </div>
+
+    <h1>화면을 찍고, 가리고, 붙여넣기까지</h1>
+    <p class="lede">
+      광고도 설치도 없는 화면 캡처 프로그램입니다. 압축을 풀고 실행하면 바로 쓸 수 있고,
+      <strong>모자이크로 개인정보를 가리는 기능</strong>, <strong>이미지 속 글자를 텍스트로 뽑는 기능</strong>,
+      <strong>스크롤로 가려진 긴 화면을 이어붙이는 기능</strong>이 들어 있습니다. 이 문서는 처음 켜는 것부터 직원에게 나눠 주는 것까지를 순서대로 설명합니다.
+    </p>
+    <div class="facts">
+      <span class="fact"><b>설치</b> 필요 없음</span>
+      <span class="fact"><b>광고</b> 없음</span>
+      <span class="fact"><b>인터넷 연결</b> 필요 없음</span>
+      <span class="fact"><b>편집 도구</b> 12가지</span>
+      <span class="fact"><b>스크롤 캡처</b> 지원</span>
+      <span class="fact"><b>경계선 자동 인식</b></span>
+      <span class="fact"><b>가려진 창</b>도 캡처</span>
+      <span class="fact"><b>QR 코드</b> 읽기</span>
+      <span class="fact"><b>핀</b> 클릭 통과</span>
+    </div>
+  </header>
+
+  <nav class="toc" aria-label="목차">
+    <div class="toc-label">목차</div>
+    <ol>
+      <li><a href="#new">v1.10 새 기능</a></li>
+      <li><a href="#start">시작하기</a></li>
+      <li><a href="#basic">기본 사용법</a></li>
+      <li><a href="#keys">단축키</a></li>
+      <li><a href="#edit">편집 도구</a></li>
+      <li><a href="#window">창 골라서 캡처</a></li>
+      <li><a href="#scroll">스크롤 캡처</a></li>
+      <li><a href="#pin">핀 고정</a></li>
+      <li><a href="#recent">최근 캡처 목록</a></li>
+      <li><a href="#ocr">글자 추출</a></li>
+      <li><a href="#settings">설정</a></li>
+      <li><a href="#share">직원과 공유하기</a></li>
+      <li><a href="#trouble">문제가 생기면</a></li>
+    </ol>
+  </nav>
+
+  <main>
+
+    <!-- -------------------------------------------- v1.10 새 기능 -->
+    <section id="new">
+      <h2>v1.10 새 기능</h2>
+      <p class="section-note">잘 모르겠으면 캡처 중에 <kbd>Tab</kbd>을 눌러 보세요. 핀·전역 단축키 안내가 나옵니다.</p>
+
+      <div class="grid">
+        <div class="cell"><div class="cell-head"><b>스크롤 캡처 개선</b></div><p>한 장 찍을 때마다 바로 맞춰 보고, 안 맞으면 덜 굴려서 다시 찍습니다. 진행 창에 이어붙인 결과가 실시간으로 보입니다.</p></div>
+        <div class="cell"><div class="cell-head"><b>색 코드 복사</b><kbd>C</kbd></div><p>캡처 중 마우스 아래 색을 <code>#1E88E5</code> 형식으로 복사합니다. <kbd>Shift</kbd>+<kbd>C</kbd>는 <code>30, 136, 229</code>.</p></div>
+        <div class="cell"><div class="cell-head"><b>예전 영역 불러오기</b><kbd>, .</kbd></div><p>같은 자리를 반복해서 찍을 때. 전역 단축키 <kbd>Ctrl+Shift+PrtScn</kbd>은 직전 영역을 바로 찍습니다.</p></div>
+        <div class="cell"><div class="cell-head"><b>화면 자</b><kbd>R</kbd></div><p>마우스 자리와 같은 색이 이어지는 가로·세로 길이(px)를 잽니다. 버튼 크기·여백 확인용.</p></div>
+        <div class="cell"><div class="cell-head"><b>QR 코드 읽기</b><kbd>Q</kbd></div><p>QR 이 들어가게 잡고 <kbd>Q</kbd>. 내용이 클립보드에 들어가고, 링크면 바로 열 수 있습니다. 글자 추출에도 함께 나옵니다.</p></div>
+        <div class="cell"><div class="cell-head"><b>캡처 직후 미리보기</b></div><p>편집창을 자동으로 열지 않을 때, 구석에 작은 미리보기가 뜹니다. <b>끌어서 카톡·메일에 바로 놓을 수 있습니다.</b></p></div>
+        <div class="cell"><div class="cell-head"><b>핀 고급 기능</b></div><p>클릭 통과 · 잠금 · 작게 접기 · 회전 · 닫은 핀 되살리기 · 모두 숨기기 · 배치 저장. 아래 [핀 고정] 참고.</p></div>
+        <div class="cell"><div class="cell-head"><b>글자·색도 핀으로</b><kbd>F4</kbd></div><p>클립보드에 이미지가 없으면 복사한 글자나 색 코드를 카드로 띄웁니다.</p></div>
+        <div class="cell"><div class="cell-head"><b>개인정보 자동 가리기</b><kbd>Ctrl+Shift+M</kbd></div><p>편집창 [이미지 ▾] 메뉴. 이메일·전화번호·주민등록번호·카드번호를 찾아 한 번에 모자이크합니다.</p></div>
+      </div>
+
+      <div class="callout">
+        <span class="tag">고친 문제</span>
+        <p>v1.9.1 까지 <b>스크롤 캡처(<kbd>Ctrl</kbd> <kbd>Alt</kbd> <kbd>PrtScn</kbd>)와
+          최근 캡처 목록(<kbd>Ctrl</kbd> <kbd>Alt</kbd> <kbd>L</kbd>) 단축키가 눌러도 반응하지 않던 문제</b>를 고쳤습니다.
+          (트레이 메뉴로는 원래 동작했습니다)</p>
+      </div>
+    </section>
+
+    <!-- ------------------------------------------------ 시작하기 -->
+    <section id="start">
+      <h2>시작하기</h2>
+      <p class="section-note">설치 과정이 없습니다. 압축을 풀고 실행하면 끝입니다.</p>
+
+      <ol class="steps">
+        <li>
+          <div>
+            <h3>압축 풀기</h3>
+            <p>받은 압축 파일에서 마우스 오른쪽 버튼 → <b>압축 풀기</b>를 누릅니다.
+              바탕화면이나 <code class="path">C:\캡처도구</code> 처럼 찾기 쉬운 곳이 좋습니다.
+              <b>폴더 전체가 한 세트</b>이므로 안쪽 파일만 따로 옮기면 실행되지 않습니다.</p>
+          </div>
+        </li>
+        <li>
+          <div>
+            <h3>캡처도구.exe 실행</h3>
+            <p>풀린 폴더 안의 <b>캡처도구.exe</b>를 두 번 누릅니다. 창은 뜨지 않고
+              작업표시줄 오른쪽 끝(시계 옆) 트레이에 파란 아이콘이 생깁니다. 이 아이콘이 곧 조작판입니다.</p>
+          </div>
+        </li>
+        <li>
+          <div>
+            <h3>PrtScn 눌러 보기</h3>
+            <p>키보드의 <kbd>PrtScn</kbd>(Print Screen) 키를 누르면 화면이 어두워지면서 캡처가 시작됩니다.
+              찍고 싶은 곳을 드래그하세요.</p>
+          </div>
+        </li>
+      </ol>
+
+      <div class="callout">
+        <span class="tag">처음 실행할 때</span>
+        <p>“Windows의 PC 보호” 파란 창이 뜰 수 있습니다. 제작자 서명이 없는 프로그램에 Windows가 붙이는
+          기본 경고입니다. <b>추가 정보</b> → <b>실행</b>을 누르면 됩니다. 이 창은 처음 한 번만 나옵니다.</p>
+      </div>
+
+      <h3>항상 켜 두려면</h3>
+      <p>트레이 아이콘을 오른쪽 클릭 → <b>설정</b> → <b>기타</b> 탭에서
+        <b>Windows 시작할 때 자동 실행</b>을 켜 두면, 컴퓨터를 켤 때마다 알아서 준비됩니다.</p>
+    </section>
+
+    <!-- ---------------------------------------------- 기본 사용법 -->
+    <section id="basic">
+      <h2>기본 사용법</h2>
+      <p class="section-note">찍고 나서 무엇을 할지, 그때그때 고를 수 있습니다.</p>
+
+      <h3>영역을 지정하는 방법</h3>
+      <ul class="plain">
+        <li><b>드래그</b> — 원하는 범위를 마우스로 끕니다. 화면의 실제 경계선(표 칸, 버튼 테두리, 문단 여백)에
+          가까워지면 <b>착 달라붙습니다.</b> <kbd>Alt</kbd>를 누르고 있으면 붙지 않습니다.</li>
+        <li><b>올려놓고 클릭</b> — 마우스를 올리기만 해도 그 자리를 감싸는 <b>영역이 파랗게 잡힙니다.</b>
+          그대로 클릭하면 그 영역만 캡처됩니다. 표의 한 칸, 버튼 하나, 창 하나를 손으로 맞출 필요가 없습니다.</li>
+        <li><b>휠 굴리기</b> — <b>잡는 단위를 바꿉니다.</b> 위로 굴리면 넓게
+          (칸 → 내용 영역 → 창 전체 → 모니터 전체), 아래로 굴리면 좁게. 아래 [단위영역 캡처] 참고.</li>
+        <li><kbd>Ctrl</kbd> <b>누르고 있는 동안</b> — 칸 대신 <b>창 전체</b>를 잡습니다. <kbd>Ctrl</kbd>+<kbd>Shift</kbd>는 모니터 전체. 손을 떼면 다시 칸으로 돌아옵니다. 지금 무엇을 잡고 있는지는 파란 테두리 위에 표시됩니다.</li>
+        <li><kbd>Shift</kbd> 누른 채 드래그 — 가로세로가 같은 <b>정사각형</b>이 됩니다.</li>
+        <li><kbd>Ctrl</kbd> <kbd>A</kbd> — 마우스가 있는 모니터 전체를 선택합니다.</li>
+      </ul>
+      <p>지정한 뒤에도 테두리의 파란 점을 끌어 크기를 고치거나, 안쪽을 끌어 위치를 옮길 수 있습니다.
+        화살표 키로는 1픽셀씩 미세 조정이 됩니다. 왼쪽 아래에 뜨는 돋보기로 픽셀과 색상 코드도 확인할 수 있습니다.</p>
+
+      <h3>마우스 없이 캡처하기</h3>
+      <p>영역을 지정하는 중에 <b>방향키로 마우스를 1픽셀씩</b> 옮길 수 있습니다
+        (<kbd>Shift</kbd>와 함께 누르면 10픽셀). 왼쪽 아래 돋보기에 좌표가 나오니
+        원하는 지점에 정확히 맞출 수 있습니다.</p>
+      <p><kbd>Space</kbd>를 누르면 그 자리가 <b>시작점</b>으로 찍힙니다. 방향키로 옮긴 뒤
+        <kbd>Space</kbd>를 한 번 더 누르면 끝점이 정해집니다. 마우스를 전혀 쓰지 않고도
+        캡처할 수 있습니다.</p>
+
+      <h3>단위영역 캡처 <span class="brand-sub">v1.8</span></h3>
+      <p class="section-note">마우스를 어디에 두느냐에 따라 잡히는 단위가 달라집니다.</p>
+      <div class="scroll-x">
+      <table class="keys">
+        <tr><th>마우스 위치</th><th>잡히는 영역</th></tr>
+        <tr><td><span class="combo"><kbd>제목표시줄 위</kbd></span></td><td class="what"><b>창 전체</b> — 테두리까지 포함한 창 하나</td></tr>
+        <tr><td><span class="combo"><kbd>창 안쪽으로 조금</kbd></span></td><td class="what">제목표시줄을 뺀 영역</td></tr>
+        <tr><td><span class="combo"><kbd>웹 페이지 · 문서 부분</kbd></span></td><td class="what"><b>내용 영역만</b> — 크롬이라면 탭·주소창·북마크를 뺀 페이지 부분</td></tr>
+        <tr><td><span class="combo"><kbd>휠</kbd></span></td><td class="what">위로 = 넓게, 아래로 = 좁게. 단위를 자유롭게 오갑니다</td></tr>
+      </table>
+      </div>
+      <p>지금 무엇이 잡혀 있는지는 파란 테두리 옆의 작은 이름표
+        (<b>칸 · 내용 영역 · 창 전체 · 모니터 전체</b>)에 나옵니다.
+        여러 단위를 고를 수 있는 자리에서는 이름표에 <b>“휠: 단위 바꾸기”</b>가 함께 표시됩니다.</p>
+
+      <div class="callout">
+        <span class="tag">왜 가끔 아무것도 안 잡히나요</span>
+        <p>사진 안의 흰 여백이나 텅 빈 배경처럼 <b>넓기만 하고 아무 내용도 없는 곳</b>은
+          v1.8 부터 일부러 잡지 않습니다. 예전에는 이런 곳이 덜컥 잡혀서, 사진을 찍으려는데
+          <b>사진 속 흰 여백만 선택되거나</b>, 빈 화면에서 아무것도 없는 띠가 길쭉하게
+          선택되는 일이 있었습니다.</p>
+        <p>버튼처럼 <b>작으면서 단색인 것</b>은 그대로 잡히니 걱정하지 않으셔도 됩니다.
+          아무것도 잡히지 않을 때는 그냥 드래그하시거나, 휠을 굴려 창·내용 영역 단위로
+          바꾸시면 됩니다.</p>
+      </div>
+
+      <div class="callout">
+        <span class="tag">경계선 인식이 잘 되는 곳 · 안 되는 곳</span>
+        <p>표·서류·프로그램 창처럼 <b>테두리나 색 경계가 뚜렷한 화면</b>에서 잘 맞습니다.
+          사진이나 그러데이션처럼 경계가 흐릿하면 아무 일도 일어나지 않고 평소처럼 드래그하시면 됩니다.
+          거슬리면 설정 → [기타]에서 끌 수 있습니다.</p>
+      </div>
+
+      <h3>크기지정 캡처</h3>
+      <p>매번 같은 크기로 찍어야 할 때 씁니다. 트레이 메뉴 → <b>크기지정 캡처</b>에서 크기를 고르면
+        그 크기의 틀이 마우스를 따라다니고, 원하는 자리에서 클릭하면 그대로 캡처됩니다.
+        자주 쓰는 크기는 설정 → [기타]에서 등록해 두세요.</p>
+
+      <h3>범위를 정하면 나타나는 버튼</h3>
+      <div class="grid">
+        <div class="cell"><div class="cell-head"><b>편집</b></div><p>편집창을 열어 표시하고 가립니다.</p></div>
+        <div class="cell"><div class="cell-head"><b>핀 고정</b></div><p>화면 위에 계속 띄워 둡니다.</p></div>
+        <div class="cell"><div class="cell-head"><b>글자 추출</b></div><p>이미지 속 글자를 텍스트로 뽑습니다.</p></div>
+        <div class="cell"><div class="cell-head"><b>QR</b></div><p>QR 코드 내용을 읽어 복사합니다.</p></div>
+        <div class="cell"><div class="cell-head"><b>스크롤</b></div><p>가려진 아래쪽까지 이어붙입니다.</p></div>
+        <div class="cell"><div class="cell-head"><b>복사</b></div><p>클립보드에만 넣습니다.</p></div>
+        <div class="cell"><div class="cell-head"><b>저장</b></div><p>지정한 폴더에 파일로 남깁니다.</p></div>
+        <div class="cell"><div class="cell-head"><b>취소</b></div><p>아무것도 하지 않고 닫습니다.</p></div>
+      </div>
+
+      <p style="margin-top:20px">버튼을 누르지 않고 <kbd>Enter</kbd>를 치거나 선택 영역을 더블클릭하면
+        <b>기본 동작</b>이 실행됩니다. 기본 동작은 설정에서 정합니다. 처음에는
+        <em>클립보드 복사 + 자동 저장 + 편집창 열기</em>가 모두 켜져 있습니다. 버튼 막대가 거슬리면
+        설정에서 끄고 기본 동작만 쓸 수도 있습니다.</p>
+
+      <h3>어디에 저장되나요</h3>
+      <p>기본 저장 위치는 <code class="path">내 PC ＞ 사진 ＞ 캡처도구</code> 폴더이고,
+        파일 이름은 <code class="path">캡처_20260825_143012.png</code> 형식입니다.
+        트레이 메뉴의 <b>저장 폴더 열기</b>(<kbd>Ctrl</kbd> <kbd>Alt</kbd> <kbd>O</kbd>)로 바로 열 수 있습니다.</p>
+    </section>
+
+    <!-- -------------------------------------------------- 단축키 -->
+    <section id="keys">
+      <h2>단축키</h2>
+      <p class="section-note">전역 단축키는 설정에서 원하는 키로 바꿀 수 있습니다.</p>
+
+      <h3>어디서나 (전역)</h3>
+      <div class="scroll-x">
+      <table class="keys">
+        <tr><th>키</th><th>하는 일</th></tr>
+        <tr><td><span class="combo"><kbd>PrtScn</kbd></span></td><td class="what">영역 캡처</td></tr>
+        <tr><td><span class="combo"><kbd>Ctrl</kbd><span>+</span><kbd>PrtScn</kbd></span></td><td class="what">전체 화면 캡처</td></tr>
+        <tr><td><span class="combo"><kbd>Alt</kbd><span>+</span><kbd>PrtScn</kbd></span></td><td class="what">지금 보고 있는 창 캡처</td></tr>
+        <tr><td><span class="combo"><kbd>Shift</kbd><span>+</span><kbd>PrtScn</kbd></span></td><td class="what">3초 뒤 캡처 (메뉴를 펼쳐 놓고 찍을 때)</td></tr>
+        <tr><td><span class="combo"><kbd>Ctrl</kbd><span>+</span><kbd>Alt</kbd><span>+</span><kbd>W</kbd></span></td><td class="what">창 골라서 캡처 (가려져 있어도)</td></tr>
+        <tr><td><span class="combo"><kbd>Ctrl</kbd><span>+</span><kbd>Alt</kbd><span>+</span><kbd>PrtScn</kbd></span></td><td class="what">스크롤 캡처 (긴 화면 이어붙이기)</td></tr>
+        <tr><td><span class="combo"><kbd>Ctrl</kbd><span>+</span><kbd>Shift</kbd><span>+</span><kbd>PrtScn</kbd></span></td><td class="what">직전에 잡았던 영역을 그대로 다시 캡처</td></tr>
+        <tr><td><span class="combo"><kbd>F4</kbd></span></td><td class="what">클립보드 내용을 핀으로 고정 (이미지 · 이미지 파일 · 색 코드 · 글자)</td></tr>
+        <tr><td><span class="combo"><kbd>Ctrl</kbd><span>+</span><kbd>Alt</kbd><span>+</span><kbd>H</kbd></span></td><td class="what">핀 모두 숨기기 / 다시 보이기</td></tr>
+        <tr><td><span class="combo"><kbd>Ctrl</kbd><span>+</span><kbd>Alt</kbd><span>+</span><kbd>Z</kbd></span></td><td class="what">닫은 핀 되살리기 (최근 10개)</td></tr>
+        <tr><td><span class="combo"><kbd>Ctrl</kbd><span>+</span><kbd>Alt</kbd><span>+</span><kbd>T</kbd></span></td><td class="what">핀 클릭 통과 켜기 / 끄기</td></tr>
+        <tr><td><span class="combo"><kbd>Ctrl</kbd><span>+</span><kbd>Alt</kbd><span>+</span><kbd>L</kbd></span></td><td class="what">최근 캡처 목록 열기</td></tr>
+        <tr><td><span class="combo"><kbd>Ctrl</kbd><span>+</span><kbd>Alt</kbd><span>+</span><kbd>O</kbd></span></td><td class="what">저장 폴더 열기</td></tr>
+      </table>
+      </div>
+
+      <h3>범위를 정하는 중</h3>
+      <div class="scroll-x">
+      <table class="keys">
+        <tr><th>키</th><th>하는 일</th></tr>
+        <tr><td><span class="combo"><kbd>Ctrl</kbd></span></td><td class="what">누르고 있는 동안 창 전체 (Ctrl+Shift 모니터 전체)</td></tr>
+        <tr><td><span class="combo"><kbd>Alt</kbd></span></td><td class="what">누르고 있으면 경계선에 붙지 않음</td></tr>
+        <tr><td><span class="combo"><kbd>Shift</kbd></span></td><td class="what">누르고 있으면 정사각형</td></tr>
+        <tr><td><span class="combo"><kbd>Ctrl</kbd><span>+</span><kbd>A</kbd></span></td><td class="what">현재 모니터 전체 선택</td></tr>
+        <tr><td><span class="combo"><kbd>↑</kbd><kbd>↓</kbd><kbd>←</kbd><kbd>→</kbd></span></td><td class="what">1픽셀씩 이동 (<kbd>Shift</kbd> 10픽셀, <kbd>Alt</kbd> 크기 조절)</td></tr>
+        <tr><td><span class="combo"><kbd>Enter</kbd></span></td><td class="what">기본 동작 실행</td></tr>
+        <tr><td><span class="combo"><kbd>E</kbd> <kbd>P</kbd> <kbd>T</kbd> <kbd>Q</kbd></span></td><td class="what">편집 · 핀 고정 · 글자 추출 · QR 코드 읽기</td></tr>
+        <tr><td><span class="combo"><kbd>S</kbd></span></td><td class="what">스크롤 캡처 시작</td></tr>
+        <tr><td><span class="combo"><kbd>C</kbd></span></td><td class="what">마우스 아래 색 코드 복사 (<kbd>Shift</kbd>+<kbd>C</kbd> 는 RGB 숫자)</td></tr>
+        <tr><td><span class="combo"><kbd>,</kbd> / <kbd>.</kbd></span></td><td class="what">예전에 잡았던 영역 불러오기 (더 예전 / 더 최근)</td></tr>
+        <tr><td><span class="combo"><kbd>R</kbd></span></td><td class="what">화면 자 켜기 / 끄기 — 같은 색이 이어지는 가로·세로 길이</td></tr>
+        <tr><td><span class="combo"><kbd>F1</kbd></span></td><td class="what">화면 단축키 안내판 켜기 / 끄기</td></tr>
+        <tr><td><span class="combo"><kbd>Tab</kbd></span></td><td class="what">안내판을 핀 · 전역 단축키 안내로 넘기기</td></tr>
+        <tr><td><span class="combo"><kbd>Ctrl</kbd><span>+</span><kbd>C</kbd> / <kbd>Ctrl</kbd><span>+</span><kbd>S</kbd></span></td><td class="what">복사 / 저장</td></tr>
+        <tr><td><span class="combo"><kbd>방향키</kbd></span></td><td class="what">마우스를 1픽셀씩 옮기기 (Shift 10픽셀)</td></tr>
+        <tr><td><span class="combo"><kbd>Space</kbd></span></td><td class="what">마우스 없이 시작점·끝점 찍기</td></tr>
+        <tr><td><span class="combo"><kbd>Esc</kbd></span></td><td class="what">선택 해제, 한 번 더 누르면 취소</td></tr>
+      </table>
+      </div>
+
+      <h3>편집창</h3>
+      <div class="scroll-x">
+      <table class="keys">
+        <tr><th>키</th><th>하는 일</th></tr>
+        <tr><td><span class="combo"><kbd>V</kbd><kbd>R</kbd><kbd>E</kbd><kbd>A</kbd><kbd>L</kbd><kbd>P</kbd><kbd>H</kbd><kbd>T</kbd><kbd>N</kbd><kbd>M</kbd><kbd>B</kbd><kbd>C</kbd></span></td><td class="what">도구 바꾸기 (아래 편집 도구 표 참고)</td></tr>
+        <tr><td><span class="combo"><kbd>Ctrl</kbd><span>+</span><kbd>Z</kbd> / <kbd>Ctrl</kbd><span>+</span><kbd>Y</kbd></span></td><td class="what">실행 취소 / 다시 실행</td></tr>
+        <tr><td><span class="combo"><kbd>Ctrl</kbd><span>+</span><kbd>S</kbd> / <kbd>Ctrl</kbd><span>+</span><kbd>C</kbd></span></td><td class="what">저장 / 복사</td></tr>
+        <tr><td><span class="combo"><kbd>Ctrl</kbd><span>+</span><kbd>T</kbd> / <kbd>Ctrl</kbd><span>+</span><kbd>E</kbd></span></td><td class="what">핀 고정 / 글자 추출</td></tr>
+        <tr><td><span class="combo"><kbd>Space</kbd><span>+</span><kbd>드래그</kbd></span></td><td class="what">손 모양으로 바뀌고, 끄는 대로 화면이 따라 움직입니다</td></tr>
+        <tr><td><span class="combo"><kbd>마우스 가운데 버튼</kbd></span></td><td class="what"><kbd>Space</kbd> 없이도 같은 방식으로 화면을 옮깁니다</td></tr>
+        <tr><td><span class="combo"><kbd>Ctrl</kbd><span>+</span><kbd>휠</kbd></span></td><td class="what">마우스가 가리키는 곳을 기준으로 확대 · 축소 (<kbd>Ctrl</kbd><span>+</span><kbd>0</kbd> 실제 크기)</td></tr>
+        <tr><td><span class="combo"><kbd>Shift</kbd><span>+</span><kbd>휠</kbd></span></td><td class="what">가로로 이동</td></tr>
+      </table>
+      </div>
+
+      <h3>그려 놓은 도형 손보기 <span class="brand-sub">v1.5</span></h3>
+      <p class="section-note">선택 도구(<kbd>V</kbd>)로 도형을 한 번 클릭하면 파란 점선과
+        흰 조절점이 나타납니다.</p>
+      <div class="scroll-x">
+      <table class="keys">
+        <tr><th>동작</th><th>하는 일</th></tr>
+        <tr><td><span class="combo"><kbd>모서리의 흰 점</kbd></span></td><td class="what">끌어서 크기를 바꿉니다. <kbd>Shift</kbd>를 함께 누르면 가로세로 비율이 유지됩니다. 직선·화살표는 양 끝점이 조절점입니다.</td></tr>
+        <tr><td><span class="combo"><kbd>↑</kbd><kbd>↓</kbd><kbd>←</kbd><kbd>→</kbd></span></td><td class="what">1픽셀씩 옮깁니다 (<kbd>Shift</kbd>는 10픽셀)</td></tr>
+        <tr><td><span class="combo"><kbd>위쪽 줄의 색 · 굵기</kbd></span></td><td class="what">고른 도형에 <b>바로 적용됩니다.</b> 지우고 다시 그릴 필요가 없습니다.</td></tr>
+        <tr><td><span class="combo"><kbd>Ctrl</kbd><span>+</span><kbd>D</kbd></span></td><td class="what">복제 (조금 옆에 사본이 생깁니다)</td></tr>
+        <tr><td><span class="combo"><kbd>Ctrl</kbd><span>+</span><kbd>Shift</kbd><span>+</span><kbd>↑</kbd> / <kbd>↓</kbd></span></td><td class="what">맨 앞으로 / 맨 뒤로 보내기</td></tr>
+        <tr><td><span class="combo"><kbd>Delete</kbd></span></td><td class="what">지우기</td></tr>
+      </table>
+      </div>
+
+      <h3>[이미지 ▾] 메뉴 <span class="brand-sub">v1.5</span></h3>
+      <div class="grid">
+        <div class="cell"><div class="cell-head"><b>회전</b><kbd>Ctrl+Shift+L / R</kbd></div><p>왼쪽·오른쪽으로 90도 돌립니다. 그려 놓은 주석도 같이 따라갑니다.</p></div>
+        <div class="cell"><div class="cell-head"><b>뒤집기</b></div><p>좌우 또는 위아래로 뒤집습니다.</p></div>
+        <div class="cell"><div class="cell-head"><b>여백 · 테두리</b></div><p>바깥에 흰 여백과 얇은 선을 두릅니다. <b>흰 배경 화면을 캡처해서 문서에 붙이면 경계가 안 보이는 문제</b>가 해결됩니다.</p></div>
+        <div class="cell"><div class="cell-head"><b>크기 바꾸기</b></div><p>메일에 첨부할 때 50%·75%로 줄입니다. 비율 유지가 기본이고, 주석의 위치와 굵기도 같은 비율로 맞춰집니다.</p></div>
+        <div class="cell"><div class="cell-head"><b>날짜 도장</b></div><p>오른쪽 아래에 오늘 날짜와 시각을 작게 넣습니다.</p></div>
+        <div class="cell"><div class="cell-head"><b>워터마크</b></div><p>“유디센터”처럼 원하는 글자를 넣습니다. 한 번 정하면 다음에도 그 글자가 기본값으로 나옵니다.</p></div>
+        <div class="cell"><div class="cell-head"><b>개인정보 자동 가리기</b><kbd>Ctrl+Shift+M</kbd></div><p>글자 인식으로 이메일·휴대폰·전화번호·주민등록번호·카드번호를 찾아, 몇 곳인지 확인받은 뒤 한 번에 모자이크합니다. 글자가 아주 작으면 못 찾을 수 있으니 결과를 한 번 훑어봐 주세요.</p></div>
+      </div>
+      <p>이 메뉴의 동작은 모두 <kbd>Ctrl</kbd> <kbd>Z</kbd>로 되돌릴 수 있습니다.
+        <b>편집 초기화</b>를 누르면 회전·여백까지 포함해 처음 캡처한 상태로 완전히 돌아갑니다.</p>
+
+      <div class="callout">
+        <span class="tag">손 도구 (v1.4)</span>
+        <p>포토샵·일러스트레이터와 똑같습니다. <kbd>Space</kbd>를 <b>누르고 있는 동안</b>
+          커서가 손 모양으로 바뀌고, 그 상태로 끌면 그림이 따라 움직입니다.
+          손을 떼면 원래 쓰던 도구로 저절로 돌아오므로, 그리다 말고 잠깐 옆을 보고
+          다시 그리기 편합니다. 그리던 내용이나 자르기 영역은 그대로 남습니다.</p>
+        <p><kbd>Ctrl</kbd>+휠 확대는 <b>마우스가 가리키던 지점이 제자리에 남도록</b> 동작합니다.
+          확대한 뒤 원하는 곳을 다시 찾을 필요가 없습니다.</p>
+      </div>
+    </section>
+
+    <!-- ---------------------------------------------- 편집 도구 -->
+    <section id="edit">
+      <h2>편집 도구</h2>
+      <p class="section-note">괄호 안은 단축키입니다. 색과 굵기는 위쪽 막대에서 고릅니다.</p>
+
+      <div class="grid">
+        <div class="cell"><div class="cell-head"><b>선택</b><kbd>V</kbd></div><p>그려 놓은 것을 클릭해 옮기거나 <kbd>Delete</kbd>로 지웁니다.</p></div>
+        <div class="cell"><div class="cell-head"><b>사각형</b><kbd>R</kbd></div><p>영역을 네모로 표시합니다.</p></div>
+        <div class="cell"><div class="cell-head"><b>타원</b><kbd>E</kbd></div><p>동그라미로 표시합니다.</p></div>
+        <div class="cell"><div class="cell-head"><b>화살표</b><kbd>A</kbd></div><p>“여기 보세요”를 가리킵니다.</p></div>
+        <div class="cell"><div class="cell-head"><b>직선</b><kbd>L</kbd></div><p>밑줄이나 구분선을 긋습니다.</p></div>
+        <div class="cell"><div class="cell-head"><b>펜</b><kbd>P</kbd></div><p>손으로 자유롭게 그립니다.</p></div>
+        <div class="cell"><div class="cell-head"><b>형광펜</b><kbd>H</kbd></div><p>글자가 비치는 반투명 강조입니다.</p></div>
+        <div class="cell"><div class="cell-head"><b>글자</b><kbd>T</kbd></div><p>클릭한 자리에 설명을 씁니다. 굵게·기울임·밑줄을 고를 수 있고, Enter 로 줄을 바꿔 Ctrl+Enter 로 마칩니다.</p></div>
+        <div class="cell"><div class="cell-head"><b>번호</b><kbd>N</kbd></div><p>①②③처럼 순서를 매깁니다. 누를 때마다 숫자가 올라갑니다.</p></div>
+        <div class="cell"><div class="cell-head"><b>모자이크</b><kbd>M</kbd></div><p>이름·연락처 등을 네모나게 뭉갭니다. 강도를 약하게·보통·강하게 중에 고릅니다.</p></div>
+        <div class="cell"><div class="cell-head"><b>흐리게</b><kbd>B</kbd></div><p>부드럽게 뿌옇게 만듭니다.</p></div>
+        <div class="cell"><div class="cell-head"><b>자르기</b><kbd>C</kbd></div><p>남길 부분을 끌어 잡고, 아래 칸에 숫자로 크기를 맞춘 뒤 Enter.</p></div>
+      </div>
+
+      <p><b>Shift</b>를 누른 채 그리면 사각형은 정사각형, 타원은 정원, 직선과 화살표는
+        45도 단위로 반듯하게 그려집니다. 잘못 그렸을 때는 <kbd>Ctrl</kbd> <kbd>Z</kbd>로 한 단계씩 되돌리고,
+        전부 지우고 싶으면 <b>편집 초기화</b>를 누르면 처음 캡처 상태로 돌아갑니다.
+        (초기화도 <kbd>Ctrl</kbd> <kbd>Z</kbd>로 되살릴 수 있습니다.)</p>
+
+      <div class="callout">
+        <span class="tag">개인정보를 가릴 때</span>
+        <p><b>모자이크</b>와 <b>흐리게</b>는 그림 위에 덮는 것이 아니라 픽셀 자체를 바꿉니다.
+          저장한 파일을 받은 사람이 되돌려 볼 수 없으니, 복지 관련 서류를 공유할 때 안심하고 쓰셔도 됩니다.
+          다만 저장 전이라면 <kbd>Ctrl</kbd> <kbd>Z</kbd>로 되돌릴 수 있습니다.</p>
+      </div>
+    </section>
+
+
+
+    <!-- ------------------------------------------- 창 골라서 캡처 -->
+    <section id="window">
+      <h2>창 골라서 캡처</h2>
+      <p class="section-note">다른 창에 가려져 있어도 그 창만 온전히 찍습니다.</p>
+
+      <p>카카오톡 채팅창을 여러 개 띄워 놓으면 서로 겹치게 됩니다. 이럴 때
+        트레이 메뉴 → <b>창 골라서 캡처</b>(<kbd>Ctrl</kbd> <kbd>Alt</kbd> <kbd>W</kbd>)를
+        누르면 지금 열려 있는 창이 <b>작은 미리보기와 함께 목록</b>으로 나옵니다.
+        원하는 창을 두 번 누르면 <b>가려진 부분까지 포함해 통째로</b> 캡처됩니다.</p>
+
+      <p>채팅창은 제목에 상대방 이름이 들어가므로 여러 개가 떠 있어도 구분해서 고를 수 있습니다.</p>
+
+      <h3>어떻게 동작하나요</h3>
+      <p>먼저 창에게 <b>스스로 그려 달라고 요청</b>합니다. 이 방법은 화면 깜빡임이 전혀 없고
+        화면 밖으로 나간 부분까지 찍힙니다. 이 요청에 응하지 않는 프로그램(크롬 등 일부)에서는
+        <b>그 창을 잠깐 앞으로 꺼내 찍고 곧바로 원래 자리로 되돌립니다.</b>
+        어느 쪽이든 결과는 나오며, 두 번째 방법을 썼을 때는 알림으로 알려 드립니다.</p>
+
+      <div class="callout">
+        <span class="tag">알아두실 점</span>
+        <p><b>최소화된 창</b>은 잠깐 복원했다가 다시 내리기 때문에 화면이 한 번 깜빡입니다.
+          그리고 창 바깥의 <b>그림자와 둥근 모서리</b>는 Windows가 그리는 것이라
+          첫 번째 방법에서는 빠지고 네모나게 잘립니다. 문서에 붙일 때는 오히려 깔끔합니다.</p>
+      </div>
+    </section>
+
+    <!-- ---------------------------------------------- 스크롤 캡처 -->
+    <section id="scroll">
+      <h2>스크롤 캡처</h2>
+      <p class="section-note">한 화면에 다 안 들어오는 긴 문서를 한 장으로 만듭니다.</p>
+
+      <p>웹페이지나 긴 문서처럼 <b>아래로 내려야 다 보이는 화면</b>을 통째로 캡처합니다.
+        범위를 정하고 <b>스크롤</b> 버튼(또는 <kbd>S</kbd>)을 누르면, 프로그램이 알아서
+        조금씩 내리면서 여러 장을 찍고 하나로 이어붙입니다.</p>
+
+      <ul class="plain">
+        <li>스크롤되는 <b>안쪽 영역</b>을 범위로 잡으세요. 창 전체보다 본문 영역만 잡는 편이 잘 됩니다.</li>
+        <li>진행 중 <kbd>Esc</kbd>를 누르면 멈춥니다. <b>거기까지 찍은 것은 이어붙여 드립니다.</b></li>
+        <li>바닥에 닿으면 잠깐 기다렸다가 한 번 더 내려 보고 끝납니다. 늦게 불러오는 페이지도 놓치지 않습니다. 최대 60장까지 찍습니다.</li>
+        <li>웹페이지 상단에 <b>고정된 메뉴바</b>가 있어도 알아서 한 번만 남깁니다.</li>
+        <li>진행 창 오른쪽에 <b>지금까지 이어붙인 모습</b>이 보이고, 왼쪽 점이 초록이면 잘 붙은 것, 빨강이면 다시 시도 중입니다.</li>
+      </ul>
+
+      <h3>v1.10 에서 달라진 점</h3>
+      <ul class="plain">
+        <li><b>굴리는 양을 알아서 맞춥니다.</b> 예전에는 휠을 늘 3칸씩 굴려서, 선택 영역이 작거나
+          화면 배율이 크면 한 번에 영역보다 많이 내려가 겹치는 부분이 사라졌습니다. 이제는 한 번 굴려
+          실제로 몇 픽셀 내려가는지 재고, 영역 높이의 절반쯤만 내려가게 조절합니다.</li>
+        <li><b>한 장 찍을 때마다 바로 맞춰 봅니다.</b> 안 맞으면 되돌려서 덜 굴려 다시 찍습니다.</li>
+        <li><b>줄 전체를 비교합니다.</b> 예전에는 한 줄에서 점 24개만 봐서, 글자가 드문 화면에서
+          서로 다른 줄을 같은 줄로 착각하곤 했습니다.</li>
+        <li>휠이 먹지 않는 창은 <kbd>↓</kbd> 키로 대신 내려 봅니다.</li>
+        <li>깜빡이는 입력 커서나 움직이는 광고가 조금 있어도 멈춘 화면으로 알아봅니다.</li>
+      </ul>
+
+      <h3>자동으로 안 될 때</h3>
+      <p>스크롤을 특이하게 구현한 프로그램에서는 자동 진행이 안 될 수 있습니다.
+        그럴 땐 <b>찍은 것은 그대로 둔 채 직접 스크롤 모드로 넘어갑니다.</b> 이 모드에서는
+        마우스 휠로 <b>천천히 내리기만 하면 화면이 멈출 때마다 알아서 한 장씩</b> 붙습니다.
+        <kbd>Space</kbd>로 한 장씩 직접 추가할 수도 있고, <kbd>Enter</kbd>를 누르면 이어붙입니다.
+        앞 장과 겹치는 부분이 없으면 빨간 글씨로 알려 주니, 조금 위로 올려 겹치게 해 주세요.</p>
+
+      <p>웹페이지처럼 <b>스크롤을 시작하면 위쪽에 메뉴바가 달라붙는 화면</b>이나
+        스크롤바 손잡이가 움직이는 화면도 알아서 처리합니다. 그래도 이어붙이지 못하면
+        몇 장을 찍었는지 알려 드리고 직접 찍기를 권합니다.</p>
+
+      <div class="callout">
+        <span class="tag">참고</span>
+        <p>이어붙인 결과는 편집창에서 열립니다. 어긋난 부분이 보이면 <b>자르기</b>로 정리하시면 됩니다.
+          게임 화면처럼 그림이 계속 움직이는 곳에서는 잘 맞지 않습니다.</p>
+      </div>
+    </section>
+
+    <!-- -------------------------------------------------- 핀 고정 -->
+    <section id="pin">
+      <h2>핀 고정</h2>
+      <p class="section-note">캡처한 이미지를 화면 맨 위에 붙여 두는 기능입니다.</p>
+
+      <p>다른 창을 클릭해도 핀은 항상 위에 남습니다. 서류를 보면서 다른 프로그램에 옮겨 적을 때,
+        창을 왔다 갔다 하지 않아도 되니 실제로 가장 손이 자주 가는 기능입니다.
+        여러 개를 동시에 띄워 나란히 비교할 수도 있습니다.</p>
+
+      <div class="scroll-x">
+      <table class="keys">
+        <tr><th>조작</th><th>하는 일</th></tr>
+        <tr><td>드래그</td><td class="what">위치 옮기기</td></tr>
+        <tr><td><span class="combo"><kbd>Ctrl</kbd><span>+</span><kbd>끌기</kbd></span></td><td class="what">카톡·메일·탐색기 창에 이미지를 바로 놓기</td></tr>
+        <tr><td>휠</td><td class="what">크기 키우고 줄이기</td></tr>
+        <tr><td><span class="combo"><kbd>Ctrl</kbd><span>+</span><kbd>휠</kbd></span></td><td class="what">반투명하게 만들기 (뒤 내용을 비쳐 보며 작업)</td></tr>
+        <tr><td>더블클릭</td><td class="what">클립보드로 복사</td></tr>
+        <tr><td><span class="combo"><kbd>Shift</kbd><span>+</span><kbd>더블클릭</kbd> / <kbd>F</kbd></span></td><td class="what">작게 접기 ↔ 펼치기 (참고 이미지를 구석에 조그맣게)</td></tr>
+        <tr><td><span class="combo"><kbd>L</kbd></span></td><td class="what">잠금 — 실수로 옮기거나 크기가 바뀌지 않게 (왼쪽 위 주황 표시)</td></tr>
+        <tr><td><span class="combo"><kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd> <kbd>4</kbd></span></td><td class="what">왼쪽 · 오른쪽으로 돌리기 / 좌우 · 위아래 뒤집기</td></tr>
+        <tr><td><span class="combo"><kbd>T</kbd> / <kbd>Q</kbd></span></td><td class="what">핀 이미지에서 글자 추출 / QR 코드 읽기</td></tr>
+        <tr><td>오른쪽 클릭</td><td class="what">저장 · 글자 추출 · QR · 편집 · 잠금 · 클릭 통과 · 접기 · 회전 · 투명도 메뉴</td></tr>
+        <tr><td><span class="combo"><kbd>0</kbd> / <kbd>가운데 버튼</kbd></span></td><td class="what">크기 · 투명도 원래대로</td></tr>
+        <tr><td><span class="combo"><kbd>Esc</kbd></span></td><td class="what">닫기 (닫은 핀은 되살릴 수 있습니다)</td></tr>
+      </table>
+      </div>
+
+      <h3>클릭 통과 <span class="brand-sub">v1.10</span></h3>
+      <p>핀은 <b>보이는데 마우스는 그 아래 창으로</b> 가게 합니다. 시안이나 표를 반투명하게 겹쳐 놓고
+        그 밑의 프로그램에서 그대로 클릭하고 입력할 때 씁니다. 핀을 오른쪽 클릭 → <b>클릭 통과</b>로 켜고,
+        켜진 핀은 파란 점선 테두리로 표시됩니다.</p>
+      <p>클릭 통과 중인 핀은 마우스를 받지 않으므로 <b>끌 때는 <kbd>Ctrl</kbd> <kbd>Alt</kbd> <kbd>T</kbd></b>
+        (또는 트레이 메뉴 → 핀 관리)를 누르세요. 핀 위에 마우스를 올린 채 이 키를 누르면 그 핀의 클릭 통과가 켜집니다.</p>
+
+      <h3>핀 관리 — 어디서나 쓰는 키</h3>
+      <div class="grid">
+        <div class="cell"><div class="cell-head"><b>클립보드 핀</b><kbd>F4</kbd></div><p>이미지뿐 아니라 탐색기에서 복사한 <b>이미지 파일</b>, 복사한 <b>글자</b>(흰 카드), <b>색 코드</b>(색 견본 카드)도 핀으로 띄웁니다.</p></div>
+        <div class="cell"><div class="cell-head"><b>모두 숨기기</b><kbd>Ctrl+Alt+H</kbd></div><p>화면을 잠깐 비울 때. 같은 키로 다시 보입니다.</p></div>
+        <div class="cell"><div class="cell-head"><b>닫은 핀 되살리기</b><kbd>Ctrl+Alt+Z</kbd></div><p>실수로 닫은 핀을 같은 자리·크기로 다시 띄웁니다. 최근 10개까지.</p></div>
+        <div class="cell"><div class="cell-head"><b>배치 저장 · 불러오기</b></div><p>트레이 메뉴 → 핀 관리. 지금 띄운 핀들의 자리·크기·투명도를 저장해 두었다가 다음에 그대로 불러옵니다.</p></div>
+      </div>
+    </section>
+
+
+    <!-- -------------------------------------------- 최근 캡처 목록 -->
+    <section id="recent">
+      <h2>최근 캡처 목록</h2>
+      <p class="section-note">방금 찍은 것을 다시 찾을 때. 저장 안 한 것도 남습니다.</p>
+
+      <p>트레이 아이콘을 오른쪽 클릭하면 <b>최근 캡처</b> 항목에 최근 10장이 작은 그림과 함께
+        나옵니다. 누르면 바로 편집창이 열립니다. 더 많이 보려면
+        <b>최근 캡처 목록 창</b>(<kbd>Ctrl</kbd> <kbd>Alt</kbd> <kbd>L</kbd>)을 여세요.</p>
+
+      <ul class="plain">
+        <li><b>더블클릭</b> — 편집창에서 열기</li>
+        <li><b>오른쪽 클릭</b> — 복사 · 핀 고정 · 글자 추출 · 탐색기에서 보기 · 휴지통으로</li>
+        <li><b>Ctrl 누르고 클릭</b> — 여러 장 골라서 한 번에 처리</li>
+      </ul>
+
+      <div class="callout">
+        <span class="tag">(임시) 표시가 붙은 것</span>
+        <p>저장하지 않고 <b>복사만 한 캡처</b>도 20장까지 몰래 보관해 둡니다. 다른 것을 복사해서
+          클립보드가 덮여도 여기서 되찾을 수 있습니다. 오래된 것은 알아서 사라지고,
+          필요 없으면 설정 → [목록 · 정리]에서 끌 수 있습니다.</p>
+      </div>
+    </section>
+
+    <!-- ------------------------------------------------ 글자 추출 -->
+    <section id="ocr">
+      <h2>글자 추출</h2>
+      <p class="section-note">이미지 속 글자를 복사·수정 가능한 텍스트로 바꿉니다.</p>
+
+      <p>스캔한 서류나 화면에만 있는 표처럼 <b>드래그로 선택되지 않는 글자</b>를 옮겨 적을 때 씁니다.
+        영역을 정한 뒤 <b>글자 추출</b> 버튼(또는 <kbd>T</kbd>)을 누르면 인식한 글자가 창에 나오고
+        동시에 클립보드에도 들어갑니다. 그대로 한글이나 엑셀에 붙여넣으면 됩니다.</p>
+
+      <p>Windows에 내장된 인식 기능을 쓰기 때문에 별도 프로그램을 깔 필요가 없고, 인터넷에 올라가지 않습니다.
+        글자가 작으면 인식률이 떨어지니, 잘 안 나올 때는 화면을 확대한 뒤 다시 찍어 보세요.</p>
+
+      <p>읽는 동안 <b>“글자를 읽는 중입니다…”</b> 창이 잠깐 뜹니다. 이 동안에도 프로그램은
+        멈추지 않으며, <b>취소</b>를 누르면 바로 그만둡니다. 30초가 지나도 끝나지 않으면
+        스스로 멈추고 알려 줍니다.</p>
+
+      <div class="callout">
+        <span class="tag">v1.4에서 고쳐졌습니다</span>
+        <p>v1.3까지는 <b>글자 추출을 누르면 프로그램 전체가 멈추는</b> 문제가 있었습니다.
+          Windows 인식 기능을 부르는 방식이 잘못되어 결과가 영영 돌아오지 않는 상태였고,
+          그래서 사실상 이 기능은 한 번도 제대로 동작하지 않았습니다.
+          v1.4에서 인식을 별도로 돌리도록 고쳤습니다.</p>
+      </div>
+
+      <div class="callout warn">
+        <span class="tag">글자 추출이 안 될 때</span>
+        <p>트레이 아이콘을 오른쪽 클릭하고 <b>[글자 추출 진단]</b>을 누르세요.
+          설정 화면을 헤맬 필요 없이, <b>이 컴퓨터가 실제로 어떤 언어를 읽을 수 있는지</b>
+          프로그램이 직접 확인해서 알려 줍니다.</p>
+        <p>한국어가 빠져 있으면 <b>[설치 명령 복사]</b> 버튼이 나옵니다. 시작 메뉴에서
+          <b>Windows PowerShell</b>을 오른쪽 클릭 → <b>관리자 권한으로 실행</b> 한 뒤
+          붙여넣고 <kbd>Enter</kbd>를 누르면 됩니다. 끝나면 캡처도구를 껐다 켜 주세요.</p>
+        <p class="small">Windows 11 에서는 한국어를 설치할 때 인식 기능이 함께 들어가므로,
+          대개는 <b>이미 준비돼 있습니다.</b> 진단을 먼저 눌러 확인해 보세요.</p>
+      </div>
+    </section>
+
+    <!-- ---------------------------------------------------- 설정 -->
+    <section id="settings">
+      <h2>설정</h2>
+      <p class="section-note">트레이 아이콘 오른쪽 클릭 → 설정.</p>
+
+      <h3>저장 · 동작</h3>
+      <ul class="plain">
+        <li><b>저장 폴더</b> — 원하는 위치로 바꿉니다. 공유 폴더를 지정해도 됩니다.</li>
+        <li><b>파일 이름</b> — <code>%Y</code> 년 · <code>%m</code> 월 · <code>%d</code> 일 ·
+          <code>%H</code> 시 · <code>%M</code> 분 · <code>%S</code> 초를 쓸 수 있고,
+          <b><code>%W</code> 는 캡처한 창의 이름</b>으로 바뀝니다.
+          예를 들어 <code>%W_%Y%m%d_%H%M%S</code> 로 두면
+          <code>카카오톡_20260825_143012.png</code> 처럼 저장됩니다.
+          창 이름을 알 수 없을 때는 그 자리만 빠지고 나머지는 그대로 저장되니 안심하셔도 됩니다.</li>
+        <li><b>파일 이름</b> — 날짜·시각 형식을 고르거나 직접 씁니다. 아래에 예시가 바로 나옵니다.</li>
+        <li><b>이미지 형식</b> — PNG는 글자가 선명하고, JPG는 용량이 작습니다. 문서 캡처에는 PNG를 권합니다.</li>
+        <li><b>캡처한 뒤 할 일</b> — 클립보드 복사 · 자동 저장 · 편집창 열기를 따로따로 켜고 끕니다.</li>
+        <li><b>버튼 막대</b> — 범위를 정했을 때 나오는 버튼 막대를 감출 수 있습니다.</li>
+        <li><b>캡처 직후 미리보기</b> — 편집창을 자동으로 열지 않을 때 화면 오른쪽 아래에 작은 미리보기를 띄웁니다.
+          썸네일을 끌어서 다른 창에 놓거나, 눌러서 편집창을 열 수 있습니다. 몇 초 동안 보일지도 정합니다.
+          마우스를 올려 두면 사라지지 않습니다.</li>
+        <li><b>폴더 분류</b> — 월별(2026-08) 또는 일별 폴더로 자동으로 나눠 담습니다.</li>
+        <li><b>지연 캡처 대기 시간</b> — 기본 3초입니다.</li>
+        <li><b>화면 단축키 안내</b> — 캡처할 때 구석에 뜨는 키 안내판을 항상 표시할지, 잠시 뒤 흐려지게 할지, 처음 몇 번만 볼지 정합니다. 캡처 중 <kbd>F1</kbd>로도 켜고 끕니다.</li>
+      </ul>
+
+      <h3>목록 · 정리</h3>
+      <ul class="plain">
+        <li><b>최근 목록에 남길 개수</b>와 <b>임시 보관 장수</b>를 정합니다.</li>
+        <li><b>오래된 캡처 자동 정리</b> — 기본은 꺼져 있습니다. 켜면 일정 기간이 지났거나
+          폴더 용량이 넘칠 때 오래된 캡처를 <b>휴지통으로</b> 보냅니다.
+          지우는 게 아니라 되살릴 수 있고, 캡처도구가 만든 파일만 건드립니다.
+          처음 한 번은 몇 개가 대상인지 알려 드리고 확인을 받습니다.
+          <b>[지금 대상 확인해 보기]</b> 버튼으로 미리 볼 수도 있습니다.</li>
+      </ul>
+
+      <h3>단축키</h3>
+      <p>칸을 클릭한 뒤 원하는 키를 그대로 누르면 등록됩니다. <kbd>Delete</kbd>를 누르면 해제됩니다.
+        같은 키를 두 곳에 지정하면 저장되지 않습니다.</p>
+
+      <h3>기타</h3>
+      <ul class="plain">
+        <li><b>영역 잡기 도우미</b> — 경계선 흡착과 칸 자동 인식을 각각 켜고 끕니다.</li>
+        <li><b>크기지정 캡처에 쓸 크기</b> — 자주 쓰는 크기를 등록·삭제합니다.</li>
+        <li><b>Windows 시작할 때 자동 실행</b> — 켜 두면 컴퓨터를 켤 때 <b>창 없이 조용히</b> 시작해
+          작업표시줄 아이콘으로만 대기합니다. 체크박스 아래에 지금 어떤 방식으로 등록돼 있는지 표시됩니다.</li>
+        <li><b>글자 추출 언어</b>도 여기 있습니다.</li>
+      </ul>
+
+      <h3>설정 파일</h3>
+      <p>모든 설정은 프로그램 폴더의 <code class="path">설정.json</code> 파일 하나에 들어갑니다.
+        폴더를 통째로 옮기면 설정도 따라갑니다.</p>
+    </section>
+
+    <!-- --------------------------------------------- 직원과 공유 -->
+    <section id="share">
+      <h2>직원과 공유하기</h2>
+      <p class="section-note">받은 압축 파일을 그대로 전달하면 됩니다.</p>
+
+      <p>설치 프로그램이 아니라 <b>폴더 하나로 완결된 형태</b>라, 관리자 권한도 필요 없고 회사 PC 정책에
+        걸리는 일도 거의 없습니다. 압축 파일을 메일이나 사내 공유 폴더로 보내고, 받은 사람은
+        압축을 풀어 <b>캡처도구.exe</b>를 실행하면 끝입니다.</p>
+
+      <p>공유 폴더에 한 벌 두고 각자 자기 PC로 복사해 쓰는 방식을 권합니다. 네트워크 드라이브에서 직접
+        실행하면 시작이 느려질 수 있습니다.</p>
+
+      <div class="callout">
+        <span class="tag">먼저 알려 주면 좋은 것</span>
+        <p>처음 실행할 때 나오는 파란 “Windows의 PC 보호” 창에서 <b>추가 정보 → 실행</b>을 눌러야 한다는 점,
+          그리고 <kbd>PrtScn</kbd> 키가 시작 버튼이라는 점 두 가지만 알려 주면 대부분 바로 씁니다.</p>
+      </div>
+    </section>
+
+    <!-- ----------------------------------------------- 문제 해결 -->
+    <section id="trouble">
+      <h2>문제가 생기면</h2>
+
+      <dl class="trouble">
+        <dt>PrtScn 키를 눌러도 아무 일이 없습니다</dt>
+        <dd>Windows 11에서는 PrtScn 키가 기본 캡처 도구에 먼저 연결되어 있을 수 있습니다.
+          Windows 설정 → <b>접근성</b> → <b>키보드</b>에서
+          <b>화면 캡처 단추를 사용하여 화면 캡처 열기</b>를 끄거나,
+          캡처도구 설정에서 다른 키(예: <kbd>Ctrl</kbd> <kbd>Shift</kbd> <kbd>A</kbd>)로 바꾸세요.
+          다른 프로그램이 이미 쓰고 있으면 실행 직후 알림으로 알려 줍니다.</dd>
+
+        <dt>실행했는데 창이 안 보입니다</dt>
+        <dd>정상입니다. 이 프로그램은 창 없이 트레이에 상주합니다. 작업표시줄 오른쪽 끝의
+          <b>∧</b> 를 눌러 숨은 아이콘을 펼쳐 보세요. 거기서 아이콘을 끌어내리면 항상 보이게 할 수 있습니다.</dd>
+
+        <dt>백신이 막습니다</dt>
+        <dd>서명이 없는 개인 제작 프로그램이라 드물게 차단될 수 있습니다.
+          백신의 예외 목록에 캡처도구 폴더를 추가하거나, 폴더를 바탕화면 등 사용자 폴더로 옮겨 보세요.</dd>
+
+        <dt>모니터가 두 대인데 위치가 어긋납니다</dt>
+        <dd>모니터마다 배율(125%, 150% 등)이 다르면 생길 수 있는 문제입니다. 프로그램을 껐다 켜면
+          현재 배율을 다시 읽습니다. 그래도 어긋나면 알려 주세요.</dd>
+
+        <dt>지금 어느 버전을 쓰고 있는지 모르겠습니다</dt>
+        <dd>작업표시줄 오른쪽의 캡처도구 아이콘에 <b>마우스를 올려 보세요.</b>
+          “캡처도구 v1.10.0” 처럼 버전이 뜹니다. 아이콘을 오른쪽 클릭하면 메뉴 맨 위에도 적혀 있고,
+          <b>[도움말 · 단축키]</b>와 <b>[진단 정보 저장]</b>에도 들어 있습니다.
+          <br><br>
+          <b>업데이트 파일은 누적본입니다.</b> 어느 버전에서 멈췄든 최신 파일 하나만 덮어쓰면 되고,
+          중간 버전을 차례로 설치할 필요가 없습니다.</dd>
+
+        <dt>모니터가 두 대인데 한쪽 화면만 작게 나옵니다</dt>
+        <dd><b>v1.9 에서 고쳐졌습니다.</b> 모니터마다 <b>배율(디스플레이 크기 설정)</b>이 다를 때
+          생기던 문제입니다. 예를 들어 한쪽이 125%, 다른 쪽이 100% 면 한쪽 화면이
+          정확히 80% 크기로 그려지고 남는 자리가 흰색으로 비었습니다 (1 ÷ 1.25 = 0.8).
+          <br><br>
+          원인은 <b>Windows 가 창 하나에 배율을 하나만 주기 때문</b>입니다. v1.8 까지는
+          캡처 화면을 창 하나로 모든 모니터에 걸쳐 띄웠기 때문에, 창의 배율과 다른
+          모니터에서는 크기가 어긋났습니다.
+          <br><br>
+          v1.9 부터는 <b>모니터마다 캡처 화면을 따로 띄웁니다.</b> 각 창이 자기 모니터의
+          배율을 제대로 받으므로 어긋나지 않고, 모니터를 가로질러 드래그하는 것도 그대로 됩니다.
+          <br><br>
+          내 모니터들의 배율은 트레이 아이콘 오른쪽 클릭 → <b>[진단 정보 저장]</b>에서
+          확인할 수 있습니다. 배율이 섞여 있으면 그 사실도 함께 적힙니다.</dd>
+
+        <dt>“단축키를 등록하지 못했습니다” 알림이 뜹니다</dt>
+        <dd><b>다른 프로그램이 그 키를 먼저 쓰고 있다는 뜻입니다.</b> Windows 는 한 단축키를
+          한 프로그램에만 내주기 때문에, 먼저 켜진 쪽이 가져갑니다. 캡처도구가 고장 난 것이 아닙니다.
+          <br><br>
+          <b>v1.7 부터는 알아서 처리합니다.</b> 막힌 키를 발견하면 같은 글자를 쓰는 빈 조합
+          (예: <kbd>Ctrl</kbd> <kbd>Alt</kbd> <kbd>O</kbd> → <kbd>Ctrl</kbd> <kbd>Shift</kbd> <kbd>O</kbd>)
+          을 찾아 대신 잡고, 무엇이 어떻게 바뀌었는지 알려 줍니다.
+          <br><br>
+          직접 정하고 싶으시면 트레이 아이콘 오른쪽 클릭 → <b>[단축키 진단]</b>을 누르세요.
+          13개 단축키가 각각 잡혀 있는지 Windows 에 하나씩 물어본 결과를 보여 주고,
+          <b>[빈 키로 바꾸기]</b> 한 번으로 비어 있는 조합을 찾아 적용합니다.
+          <br><br>
+          어느 프로그램이 가져갔는지는 Windows 가 알려 주지 않습니다. 굳이 찾으시려면
+          상주 프로그램(메신저·백신·그래픽 유틸리티 등)을 하나씩 끄면서
+          [단축키 진단] → [다시 확인]을 눌러 보시면 됩니다. 다만 <b>막힌 기능도 트레이
+          아이콘 메뉴에서는 그대로 쓸 수 있으니</b>, 굳이 범인을 찾지 않으셔도 됩니다.</dd>
+
+        <dt>컴퓨터를 켜면 검은 창(명령 프롬프트)이 같이 뜹니다</dt>
+        <dd><b>v1.6 에서 고쳐졌습니다.</b> v1.5 까지는 자동 실행이 파이썬을 직접 부르도록
+          잘못 등록되어, 로그인할 때마다 검은 창이 하나 뜨고 <b>그 창을 닫으면 캡처도구도 같이 꺼졌습니다.</b>
+          v1.6 으로 덮어쓰고 <b>한 번만 실행하면</b> 등록이 자동으로 바로잡히고, 다음 부팅부터는 창이 뜨지 않습니다.
+          따로 설정을 만지실 필요는 없습니다.</dd>
+
+        <dt>폴더를 옮겼더니 자동 실행이 안 됩니다</dt>
+        <dd>옮긴 뒤 캡처도구를 한 번 실행하면 지금 위치로 다시 맞춥니다.</dd>
+
+        <dt>글자 추출이 안 됩니다</dt>
+        <dd>트레이 아이콘 오른쪽 클릭 → <b>[글자 추출 진단]</b> 을 눌러 주세요. 무엇이 빠졌는지 확인하고 해결 방법까지 알려 줍니다.</dd>
+
+        <dt>창이 제대로 안 잡히거나 이상하게 동작합니다</dt>
+        <dd>트레이 메뉴의 <b>[진단 정보 저장]</b>을 누르면 지금 컴퓨터의 모니터 구성과
+          감지된 창 목록이 텍스트 파일로 저장됩니다. 이 파일을 보내 주시면 원인을
+          정확히 찾을 수 있습니다. 개인 문서 내용은 들어가지 않습니다.</dd>
+
+        <dt>그 밖의 오류</dt>
+        <dd>프로그램 폴더에 <code class="path">오류기록.txt</code> 가 생겼다면 그 내용을 보내 주세요.
+          문제가 없으면 이 파일은 만들어지지 않습니다.</dd>
+      </dl>
+    </section>
+
+    <footer>
+      캡처도구 v1.10.0 · 유디센터 · 설치 없이 폴더 하나로 동작하는 Windows 화면 캡처 프로그램
+    </footer>
+
+  </main>
+</div>
+
+</body>
+</html>

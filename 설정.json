@@ -1,0 +1,149 @@
+{
+  "save_dir": "",
+  "file_pattern": "캡처_%Y%m%d_%H%M%S",
+  "folder_split": "",
+  "image_format": "png",
+  "jpeg_quality": 92,
+  "after_copy": true,
+  "after_save": true,
+  "after_edit": true,
+  "show_action_bar": true,
+  "delay_seconds": 3,
+  "quick_preview": true,
+  "quick_preview_seconds": 6,
+  "region_history": [
+    [
+      -1640,
+      4,
+      1628,
+      1028
+    ],
+    [
+      -1640,
+      0,
+      1628,
+      1033
+    ],
+    [
+      130,
+      171,
+      1113,
+      586
+    ],
+    [
+      626,
+      112,
+      766,
+      583
+    ],
+    [
+      -1009,
+      179,
+      480,
+      854
+    ],
+    [
+      280,
+      76,
+      1639,
+      956
+    ],
+    [
+      -1357,
+      211,
+      994,
+      570
+    ],
+    [
+      -1367,
+      211,
+      1004,
+      570
+    ],
+    [
+      -1629,
+      83,
+      876,
+      640
+    ],
+    [
+      -1920,
+      0,
+      1920,
+      1032
+    ]
+  ],
+  "region_history_limit": 10,
+  "pen_color": "#e53935",
+  "pen_width": 4,
+  "font_size": 24,
+  "highlight_color": "#ffeb3b",
+  "frame_margin": 12,
+  "frame_line": 1,
+  "watermark_text": "",
+  "stamp_on_save": false,
+  "name_from_window": false,
+  "hotkey_fallback": true,
+  "hotkey_warned": "",
+  "pin_opacity": 100,
+  "pin_restore_limit": 10,
+  "size_presets": [
+    [
+      1920,
+      1080
+    ],
+    [
+      1280,
+      720
+    ],
+    [
+      1024,
+      768
+    ],
+    [
+      800,
+      600
+    ],
+    [
+      640,
+      480
+    ]
+  ],
+  "snap_edges": true,
+  "auto_region": true,
+  "hint_mode": "fade",
+  "hint_count_limit": 20,
+  "hint_shown": 0,
+  "recent_limit": 200,
+  "keep_unsaved": true,
+  "unsaved_limit": 20,
+  "cleanup_enabled": false,
+  "cleanup_mode": "days",
+  "cleanup_days": 30,
+  "cleanup_size_gb": 2,
+  "cleanup_confirmed": false,
+  "cleanup_last_run": "",
+  "scroll_step": 3,
+  "scroll_delay_ms": 260,
+  "scroll_max_frames": 30,
+  "scroll_frame_limit": 60,
+  "autostart": false,
+  "show_tray_message": true,
+  "ocr_language": "",
+  "hotkeys": {
+    "region": "Print",
+    "fullscreen": "Ctrl+Print",
+    "window": "Alt+Print",
+    "window_pick": "Ctrl+Alt+W",
+    "delay": "Shift+Print",
+    "scroll": "Ctrl+Alt+Print",
+    "pin_clipboard": "F4",
+    "recent": "Ctrl+Alt+L",
+    "open_folder": "Ctrl+Alt+O",
+    "last_region": "Ctrl+Shift+Print",
+    "pins_hide": "Ctrl+Alt+H",
+    "pin_restore": "Ctrl+Alt+Z",
+    "pins_passthrough": "Ctrl+Alt+T"
+  },
+  "_greeted": true
+}
