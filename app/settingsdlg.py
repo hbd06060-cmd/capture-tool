@@ -66,6 +66,7 @@ class HotkeyEdit(QLineEdit):
 
 class SettingsDialog(QDialog):
     applied = Signal()
+    check_update_requested = Signal()
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -379,6 +380,38 @@ class SettingsDialog(QDialog):
         preset_layout.addLayout(row)
         layout.addWidget(preset_box)
 
+        update_box = QGroupBox("업데이트", page)
+        update_layout = QVBoxLayout(update_box)
+        self.update_check = QCheckBox(
+            "새 버전이 나왔는지 자동으로 확인하기", update_box)
+        update_layout.addWidget(self.update_check)
+        self.update_auto = QCheckBox(
+            "새 버전을 미리 내려받아 두기 (누르면 바로 적용됩니다)", update_box)
+        self.update_auto.setStyleSheet("margin-left: 18px;")
+        update_layout.addWidget(self.update_auto)
+
+        every_row = QHBoxLayout()
+        every_row.setContentsMargins(18, 0, 0, 0)
+        every_row.addWidget(QLabel("확인 주기", update_box))
+        self.update_hours = QSpinBox(update_box)
+        self.update_hours.setRange(1, 24 * 14)
+        self.update_hours.setSuffix(" 시간마다")
+        every_row.addWidget(self.update_hours)
+        every_row.addStretch(1)
+        self.update_now_btn = QPushButton("지금 확인", update_box)
+        self.update_now_btn.clicked.connect(self._check_update_now)
+        every_row.addWidget(self.update_now_btn)
+        update_layout.addLayout(every_row)
+
+        self.update_check.toggled.connect(self.update_auto.setEnabled)
+        self.update_check.toggled.connect(self.update_hours.setEnabled)
+
+        self.update_note = QLabel("", update_box)
+        self.update_note.setWordWrap(True)
+        self.update_note.setStyleSheet("color: #777; font-size: 12px;")
+        update_layout.addWidget(self.update_note)
+        layout.addWidget(update_box)
+
         self.autostart_check = QCheckBox("Windows 시작할 때 자동 실행", page)
         layout.addWidget(self.autostart_check)
         self.autostart_note = QLabel("", page)
@@ -462,6 +495,13 @@ class SettingsDialog(QDialog):
             winutil.get_autostart("캡처도구") if winutil.IS_WIN
             else bool(CONFIG["autostart"]))
         self._show_autostart_note()
+        self.update_check.setChecked(bool(CONFIG.get("update_check_enabled", True)))
+        self.update_auto.setChecked(bool(CONFIG.get("update_auto_download", True)))
+        self.update_hours.setValue(
+            max(1, int(CONFIG.get("update_check_hours", 24) or 24)))
+        self.update_auto.setEnabled(self.update_check.isChecked())
+        self.update_hours.setEnabled(self.update_check.isChecked())
+        self._show_update_note()
         self.tray_msg_check.setChecked(bool(CONFIG["show_tray_message"]))
         self.snap_check.setChecked(bool(CONFIG["snap_edges"]))
         self.auto_region_check.setChecked(bool(CONFIG["auto_region"]))
@@ -498,6 +538,30 @@ class SettingsDialog(QDialog):
         else:
             self.autostart_note.setText(
                 "창 없이 조용히 시작하도록 올바르게 등록돼 있습니다.")
+
+    def _show_update_note(self):
+        """마지막으로 확인한 때와, 비공개 저장소일 때 필요한 안내."""
+        import updater
+        parts = []
+        last = str(CONFIG.get("update_last_check") or "")
+        if last:
+            parts.append("마지막 확인: %s" % last.replace("T", " "))
+        else:
+            parts.append("아직 확인한 적이 없습니다.")
+        skipped = str(CONFIG.get("update_skip_version") or "")
+        if skipped:
+            parts.append("v%s 는 건너뛰기로 해 두셨습니다." % skipped)
+        if not updater.token():
+            parts.append(
+                "저장소가 비공개라면 접근 열쇠가 필요합니다. "
+                "아래 파일에 GitHub 토큰 한 줄을 넣어 주세요.\n%s"
+                % updater.token_path())
+        self.update_note.setText("\n".join(parts))
+
+    def _check_update_now(self):
+        """[지금 확인] — 설정 창을 닫고 본체가 확인하게 한다."""
+        self.reject()
+        self.check_update_requested.emit()
 
     def _load_ocr_languages(self):
         """인식 가능한 언어를 별도 스레드에서 알아본다.
@@ -612,6 +676,9 @@ class SettingsDialog(QDialog):
         CONFIG["cleanup_size_gb"] = self.cleanup_size.value()
         if not was_on and CONFIG["cleanup_enabled"]:
             CONFIG["cleanup_confirmed"] = False   # 처음 한 번은 다시 확인
+        CONFIG["update_check_enabled"] = self.update_check.isChecked()
+        CONFIG["update_auto_download"] = self.update_auto.isChecked()
+        CONFIG["update_check_hours"] = self.update_hours.value()
         CONFIG["show_tray_message"] = self.tray_msg_check.isChecked()
         CONFIG["snap_edges"] = self.snap_check.isChecked()
         CONFIG["auto_region"] = self.auto_region_check.isChecked()

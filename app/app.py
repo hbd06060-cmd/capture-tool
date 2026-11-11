@@ -164,6 +164,8 @@ class CaptureApp(QObject):
         self._pins_hidden = False
         self.quick = None              # 캡처 직후 미리보기
         self._quitting = False
+        self.updates = None            # 업데이트 지휘자 (필요할 때 만든다)
+        self._relaunch_after_quit = False   # 업데이트 뒤 다시 띄울지
 
         self.host = HotkeyHost()
         self.filter = HotkeyFilter(self._on_hotkey)
@@ -175,6 +177,8 @@ class CaptureApp(QObject):
         self._fix_autostart()
         self._greet()
         QTimer.singleShot(2500, self._run_cleanup)
+        # 켜자마자 인터넷을 붙잡으면 시작이 느려 보인다. 한숨 돌린 뒤에 확인한다.
+        QTimer.singleShot(8000, self._check_updates_quietly)
 
     def _load_korean_translation(self):
         """Qt 기본 창(인쇄 미리보기, 색 고르기 등)의 영어 문구를 한국어로."""
@@ -225,6 +229,12 @@ class CaptureApp(QObject):
         version_item = QAction("캡처도구 v%s" % VERSION, menu)
         version_item.setEnabled(False)        # 눌리지 않는 안내줄
         menu.addAction(version_item)
+
+        # 새 버전이 있을 때만 맨 위에 나타나는 줄. 평소에는 숨겨 둔다.
+        self.update_action = QAction("", menu)
+        self.update_action.triggered.connect(self.open_update_dialog)
+        self.update_action.setVisible(False)
+        menu.addAction(self.update_action)
         menu.addSeparator()
 
         add("영역 캡처", "region", self.capture_region)
@@ -262,6 +272,7 @@ class CaptureApp(QObject):
         add("단축키 진단", None, self.check_hotkeys)
         add("글자 추출 진단", None, self.check_ocr)
         add("진단 정보 저장", None, self.save_diagnostics)
+        add("업데이트 확인", None, self.check_updates)
         menu.addSeparator()
         add("종료", None, self.quit)
 
@@ -438,6 +449,57 @@ class CaptureApp(QObject):
         image = QImage(str(path))
         if not image.isNull():
             self.run_ocr(image)
+
+    # ----------------------------------------------------------- 업데이트
+    def _update_manager(self):
+        """업데이트 지휘자를 처음 쓸 때 만든다 (시작을 가볍게 하려고)."""
+        if self.updates is None:
+            from updatedlg import UpdateManager
+            self.updates = UpdateManager(self)
+        return self.updates
+
+    def _check_updates_quietly(self):
+        """켠 뒤 자동 확인. 새 버전이 없으면 아무것도 보여 주지 않는다."""
+        if not CONFIG.get("update_check_enabled", True):
+            return
+        try:
+            self._update_manager().check_quietly()
+        except Exception:
+            pass        # 업데이트 확인이 실패해도 캡처는 계속 써야 한다
+
+    def check_updates(self):
+        """'업데이트 확인' 메뉴 — 결과를 반드시 알려 준다."""
+        self._update_manager().check_now()
+
+    def open_update_dialog(self):
+        self._update_manager().open_dialog()
+
+    def refresh_update_menu(self):
+        """새 버전이 있으면 트레이 메뉴 맨 위에 안내 줄을 띄운다."""
+        manager = self.updates
+        pending = None if manager is None else manager.pending
+        if pending is None:
+            self.update_action.setVisible(False)
+            self.tray.setToolTip("캡처도구 v%s" % VERSION)
+            return
+        ready = manager.ready_folder is not None
+        self.update_action.setText(
+            "새 버전 v%s %s" % (pending.version,
+                               "설치하기" if ready else "보기"))
+        self.update_action.setVisible(True)
+        self.tray.setToolTip("캡처도구 v%s — 새 버전 v%s 있음"
+                             % (VERSION, pending.version))
+
+    def restart_for_update(self):
+        """업데이트를 끝내고 새 코드로 다시 띄운다.
+
+        여기서 바로 새 프로그램을 띄우면 안 된다. 캡처도구는 두 번 실행되지
+        않도록 자리를 하나 잡아 두는데, 지금 그 자리를 이쪽이 쥐고 있어서
+        새로 뜬 쪽이 '이미 실행 중'으로 보고 그냥 꺼져 버린다. 그래서
+        표시만 남기고, 완전히 끝난 뒤 main.pyw 가 대신 띄워 준다.
+        """
+        self._relaunch_after_quit = True
+        self.quit()
 
     # ---------------------------------------------------------- 자동 정리
     def _run_cleanup(self):
@@ -1365,6 +1427,7 @@ class CaptureApp(QObject):
         dialog = SettingsDialog()
         dialog.setWindowIcon(self.icon)
         dialog.applied.connect(self._settings_applied)
+        dialog.check_update_requested.connect(self.check_updates)
         dialog.exec()
 
     def _settings_applied(self):
@@ -1465,6 +1528,11 @@ class CaptureApp(QObject):
     # ------------------------------------------------------------- 종료
     def quit(self):
         self._quitting = True
+        if self.updates is not None:
+            try:
+                self.updates.stop()
+            except Exception:
+                pass
         if winutil.IS_WIN:
             hwnd = int(self.host.winId())
             for hotkey_id in HOTKEY_IDS.values():

@@ -10,7 +10,7 @@ APP_NAME = "캡처도구"
 ORG_NAME = "CaptureTool"
 
 # 프로그램 버전 — 여기 한 곳만 고치면 트레이·도움말·진단에 모두 반영된다
-VERSION = "1.10.0"
+VERSION = "1.11.0"
 
 
 DEFAULTS = {
@@ -72,6 +72,15 @@ DEFAULTS = {
     "scroll_delay_ms": 260,
     "scroll_max_frames": 30,              # (예전 값 — 더 이상 쓰지 않음)
     "scroll_frame_limit": 60,             # 최대 몇 장까지 찍을지
+    # 업데이트 (새 버전 확인 · 내려받기)
+    "update_check_enabled": True,         # 켤 때 주기적으로 새 버전 확인
+    "update_auto_download": True,         # 새 버전을 미리 받아 두기
+    "update_check_hours": 24,             # 몇 시간마다 확인할지
+    "update_last_check": "",              # 마지막으로 확인한 시각
+    "update_skip_version": "",            # 사용자가 건너뛰기로 한 버전
+    "update_repo": "hbd06060-cmd/capture-tool",
+    "update_branch": "main",
+    "update_manifest": "버전정보.json",
     # 기타
     "autostart": False,
     "show_tray_message": True,

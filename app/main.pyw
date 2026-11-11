@@ -161,6 +161,17 @@ def main():
 
     code = application.run()
     server.close()
+    QLocalServer.removeServer(SERVER_NAME)
+
+    # 업데이트를 적용하고 '다시 시작'을 고른 경우. 자리(중복 실행 방지)를
+    # 완전히 놓은 지금에야 새로 띄울 수 있다. 먼저 띄우면 새로 뜬 쪽이
+    # '이미 실행 중'으로 보고 그냥 꺼져 버린다.
+    if getattr(application, "_relaunch_after_quit", False):
+        try:
+            import updater
+            updater.relaunch()
+        except Exception:
+            traceback.print_exc()
     return code
 
 
