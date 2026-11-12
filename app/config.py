@@ -10,7 +10,7 @@ APP_NAME = "캡처도구"
 ORG_NAME = "CaptureTool"
 
 # 프로그램 버전 — 여기 한 곳만 고치면 트레이·도움말·진단에 모두 반영된다
-VERSION = "1.11.0"
+VERSION = "1.11.1"
 
 
 DEFAULTS = {

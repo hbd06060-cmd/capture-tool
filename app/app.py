@@ -467,12 +467,27 @@ class CaptureApp(QObject):
         except Exception:
             pass        # 업데이트 확인이 실패해도 캡처는 계속 써야 한다
 
+    def _update_manager_or_warn(self):
+        """준비에 실패하면 '예상치 못한 문제' 대신 알아듣게 알려 준다."""
+        try:
+            return self._update_manager()
+        except Exception as exc:
+            QMessageBox.warning(
+                None, "업데이트",
+                "업데이트 기능을 준비하지 못했습니다.\n"
+                "캡처는 평소처럼 쓰실 수 있습니다.\n\n(%s)" % exc)
+            return None
+
     def check_updates(self):
         """'업데이트 확인' 메뉴 — 결과를 반드시 알려 준다."""
-        self._update_manager().check_now()
+        manager = self._update_manager_or_warn()
+        if manager is not None:
+            manager.check_now()
 
     def open_update_dialog(self):
-        self._update_manager().open_dialog()
+        manager = self._update_manager_or_warn()
+        if manager is not None:
+            manager.open_dialog()
 
     def refresh_update_menu(self):
         """새 버전이 있으면 트레이 메뉴 맨 위에 안내 줄을 띄운다."""

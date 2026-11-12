@@ -11,17 +11,20 @@ updatedlg.py 가 맡는다.
   2. 바꾸기 전에 지금 파일을 통째로 백업한다
   3. 중간에 실패하면 백업에서 되돌린다
   4. 내려받은 꾸러미가 캡처도구가 맞는지 확인한 뒤에만 바꾼다
+
+인터넷 연결과 압축 풀기에 대해
+  배포본의 내장 파이썬(runtime/)은 용량을 줄이느라 ssl 같은 부품이
+  빠져 있다. 그래서 ssl · urllib · zipfile 은 맨 위에서 부르지 않고,
+  있으면 쓰고 없으면 윈도우에 기본으로 들어 있는 curl.exe / tar.exe 로
+  대신한다 (윈도우 10 1803 이후 모두 들어 있다).
 """
 import json
 import os
 import re
 import shutil
-import ssl
+import subprocess
 import sys
 import time
-import urllib.error
-import urllib.request
-import zipfile
 from datetime import datetime
 from pathlib import Path
 
@@ -127,35 +130,182 @@ def _headers():
     return head
 
 
-def _open(url, accept, timeout=TIMEOUT):
+# 시험할 때 "curl" 이나 "python" 으로 정해 한쪽 길만 쓰게 한다. 평소에는 None.
+FORCE_BACKEND = None
+
+NO_INTERNET = "인터넷에 연결하지 못했습니다. 잠시 뒤 다시 시도해 주세요."
+
+_SAFE = frozenset(b"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                  b"abcdefghijklmnopqrstuvwxyz0123456789-._~")
+
+
+def _quote(text):
+    """주소에 넣을 수 있게 글자를 %XX 로 바꾼다 (urllib 없이 쓰려고)."""
+    return "".join(chr(b) if b in _SAFE else "%%%02X" % b
+                   for b in str(text).encode("utf-8"))
+
+
+def _python_https():
+    """내장 파이썬에 https 부품(ssl, urllib)이 다 있으면 그것들을 돌려준다."""
+    if FORCE_BACKEND == "curl":
+        return None
+    try:
+        import ssl
+        import urllib.error
+        import urllib.request
+    except ImportError:
+        return None
+    return ssl, urllib.request, urllib.error
+
+
+def _system_tool(name):
+    """윈도우 System32 의 기본 도구 (curl.exe, tar.exe). 없으면 빈 칸."""
+    root = os.environ.get("SystemRoot") or os.environ.get("windir")
+    if root:
+        candidate = Path(root) / "System32" / (name + ".exe")
+        if candidate.is_file():
+            return str(candidate)
+    return ""
+
+
+def _curl_path():
+    if FORCE_BACKEND == "python":
+        return ""
+    return _system_tool("curl") or shutil.which("curl") or ""
+
+
+def _hidden():
+    """윈도우에서 도구를 부를 때 검은 창이 번쩍 뜨지 않게 한다."""
+    if os.name == "nt":
+        return {"creationflags": getattr(subprocess, "CREATE_NO_WINDOW",
+                                         0x08000000)}
+    return {}
+
+
+def fetch_to_file(url, accept, dest: Path, timeout=TIMEOUT,
+                  limit=MAX_ZIP_BYTES, progress=None):
+    """주소의 내용을 dest 파일로 받는다. 받은 바이트 수를 돌려준다.
+
+    dest 의 파일 이름은 영어·숫자로만 짓는다. curl 에 한글 경로를 넘기면
+    컴퓨터 언어 설정에 따라 깨질 수 있어서, 폴더는 '작업 위치'로 넘기고
+    파일 이름만 건넨다.
+    """
+    parts = _python_https()
+    curl = "" if parts is not None else _curl_path()
+    if parts is not None or curl:
+        try:
+            if parts is not None:
+                return _fetch_python(parts, url, accept, dest, timeout,
+                                     limit, progress)
+            return _fetch_curl(curl, url, accept, dest, timeout, limit,
+                               progress)
+        except Exception:
+            # 실패하면 받다 만 파일(또는 오류 안내문)을 남기지 않는다
+            try:
+                if dest.exists():
+                    dest.unlink()
+            except OSError:
+                pass
+            raise
+    raise UpdateError(
+        "이 컴퓨터에서 인터넷으로 내려받을 도구를 찾지 못했습니다.\n"
+        "(윈도우 10 의 아주 옛 버전이면 curl 이 들어 있지 않습니다)")
+
+
+def _fetch_python(parts, url, accept, dest, timeout, limit, progress):
+    ssl, request, error = parts
     head = _headers()
     head["Accept"] = accept
-    request = urllib.request.Request(url, headers=head)
     try:
-        context = ssl.create_default_context()
-        return urllib.request.urlopen(request, timeout=timeout,
-                                      context=context)
-    except urllib.error.HTTPError as exc:
+        response = request.urlopen(request.Request(url, headers=head),
+                                   timeout=timeout,
+                                   context=ssl.create_default_context())
+    except error.HTTPError as exc:
         raise UpdateError(_http_message(exc.code)) from exc
-    except urllib.error.URLError as exc:
-        raise UpdateError(
-            "인터넷에 연결하지 못했습니다. 잠시 뒤 다시 시도해 주세요.\n(%s)"
-            % exc.reason) from exc
+    except error.URLError as exc:
+        raise UpdateError("%s\n(%s)" % (NO_INTERNET, exc.reason)) from exc
     except Exception as exc:
         raise UpdateError("확인하는 중 문제가 생겼습니다.\n(%s)" % exc) from exc
 
+    with response:
+        try:
+            total = int(response.headers.get("Content-Length") or 0)
+        except Exception:
+            total = 0
+        got = 0
+        with open(dest, "wb") as handle:
+            while True:
+                chunk = response.read(64 * 1024)
+                if not chunk:
+                    break
+                got += len(chunk)
+                if got > limit:
+                    raise UpdateError("내려받을 파일이 너무 큽니다. 중단했습니다.")
+                handle.write(chunk)
+                if progress is not None:
+                    progress(got, total)
+    return got
+
+
+def _fetch_curl(curl, url, accept, dest, timeout, limit, progress):
+    head = _headers()
+    head["Accept"] = accept
+    command = [curl, "-sS", "-L", "--connect-timeout", "15",
+               "--max-time", str(int(timeout)),
+               "--max-filesize", str(int(limit)),
+               "-o", dest.name, "-w", "%{http_code}"]
+    for key, value in head.items():
+        command += ["-H", "%s: %s" % (key, value)]
+    command.append(url)
+    try:
+        done = subprocess.run(command, cwd=str(dest.parent),
+                              capture_output=True, timeout=timeout + 15,
+                              **_hidden())
+    except subprocess.TimeoutExpired as exc:
+        raise UpdateError("응답이 너무 늦어 중단했습니다. 잠시 뒤 다시 "
+                          "시도해 주세요.") from exc
+    except OSError as exc:
+        raise UpdateError("내려받기 도구(curl)를 실행하지 못했습니다.\n(%s)"
+                          % exc) from exc
+
+    text = done.stdout.decode("ascii", "replace").strip()
+    try:
+        code = int(text[-3:])
+    except ValueError:
+        code = 0
+    if done.returncode == 63:
+        raise UpdateError("내려받을 파일이 너무 큽니다. 중단했습니다.")
+    if code >= 400:
+        raise UpdateError(_http_message(code))
+    if done.returncode != 0 or code == 0:
+        reason = done.stderr.decode("utf-8", "replace").strip().splitlines()
+        raise UpdateError("%s\n(curl %d: %s)" % (
+            NO_INTERNET, done.returncode, reason[-1] if reason else "응답 없음"))
+    try:
+        size = dest.stat().st_size
+    except OSError:
+        size = 0
+    if progress is not None:
+        progress(size, size)
+    return size
+
 
 def _http_message(code):
-    if code in (401, 403):
-        if not token():
-            return ("비공개 저장소라 접근 열쇠가 필요합니다.\n"
-                    "아래 파일에 GitHub 토큰 한 줄을 넣어 주세요.\n%s"
-                    % token_path())
+    if token() and code in (401, 403):
         return ("접근이 거부되었습니다. 토큰이 만료되었거나 권한이 "
                 "모자랄 수 있습니다.\n%s 를 확인해 주세요." % token_path())
+    if code == 401:
+        return ("접근 열쇠가 필요합니다. 저장소가 비공개로 바뀌었다면\n"
+                "아래 파일에 GitHub 토큰 한 줄을 넣어 주세요.\n%s"
+                % token_path())
+    if code == 403:
+        # 공개 저장소를 열쇠 없이 볼 때 403 은 대개 '한 시간에 60번' 제한이다
+        return ("GitHub 이 잠시 확인을 막았습니다. 짧은 시간에 너무 자주 "
+                "확인하면 생깁니다.\n한 시간쯤 뒤에 다시 시도해 주세요.")
     if code == 404:
         return ("저장소나 버전 파일을 찾지 못했습니다.\n"
-                "설정 > 업데이트 에서 저장소 주소를 확인해 주세요.")
+                "설정 > 업데이트 에서 저장소 주소를 확인해 주세요.\n"
+                "(저장소를 비공개로 바꿨다면 접근 열쇠가 필요합니다)")
     if code == 429:
         return "요청이 너무 잦습니다. 잠시 뒤 다시 시도해 주세요."
     return "서버가 응답하지 않았습니다. (오류 %s)" % code
@@ -168,11 +318,20 @@ def fetch_manifest():
         raise UpdateError("업데이트 저장소가 설정돼 있지 않습니다.")
     manifest_name = (CONFIG.get("update_manifest") or "버전정보.json").strip()
     url = "https://api.github.com/repos/%s/contents/%s?ref=%s" % (
-        name, urllib.request.quote(manifest_name), urllib.request.quote(branch()))
-    with _open(url, "application/vnd.github.raw") as response:
-        raw = response.read(1024 * 256)
+        name, _quote(manifest_name), _quote(branch()))
+    temp = work_dir() / ("manifest_%d_%d.json"
+                         % (os.getpid(), int(time.time() * 1000)))
     try:
-        data = json.loads(raw.decode("utf-8"))
+        fetch_to_file(url, "application/vnd.github.raw", temp,
+                      limit=256 * 1024)
+        raw = temp.read_bytes()
+    finally:
+        try:
+            temp.unlink()
+        except OSError:
+            pass
+    try:
+        data = json.loads(raw.decode("utf-8-sig"))
     except Exception as exc:
         raise UpdateError("버전 정보를 읽지 못했습니다. (%s)" % exc) from exc
     if not isinstance(data, dict) or not data.get("version"):
@@ -250,69 +409,102 @@ def check(force=False):
 
 
 # ------------------------------------------------------------ 내려받기
+# 작업 폴더 안의 파일·폴더 이름은 영어로만 짓는다. curl · tar 에 한글
+# 이름을 넘기면 컴퓨터 언어 설정에 따라 깨질 수 있기 때문이다.
+ZIP_NAME = "download.zip"
+EXTRACT_NAME = "new_version"
+
+
 def download(progress=None):
     """저장소를 통째로 내려받아 zip 파일 경로를 돌려준다.
 
     progress(받은바이트, 전체바이트) 를 중간중간 불러 준다.
-    전체 크기를 서버가 알려 주지 않으면 전체는 0 이다.
+    전체 크기를 모르면 전체는 0 이다 (curl 로 받을 때는 끝에 한 번만 부른다).
     """
     name = repo()
-    url = "https://api.github.com/repos/%s/zipball/%s" % (
-        name, urllib.request.quote(branch()))
-    target = work_dir() / "받은파일.zip"
+    url = "https://api.github.com/repos/%s/zipball/%s" % (name, _quote(branch()))
+    target = work_dir() / ZIP_NAME
     # 받는 중인 파일 이름을 매번 다르게 한다. 어쩌다 두 군데서 동시에 받아도
     # 같은 파일에 겹쳐 써서 내용이 뒤섞이는 일이 없도록 하기 위해서다.
-    tmp = work_dir() / ("받는중_%d_%d.part" % (os.getpid(), int(time.time() * 1000)))
-
-    with _open(url, "application/vnd.github+json", timeout=60) as response:
-        try:
-            total = int(response.headers.get("Content-Length") or 0)
-        except Exception:
-            total = 0
-        got = 0
-        with open(tmp, "wb") as handle:
-            while True:
-                chunk = response.read(64 * 1024)
-                if not chunk:
-                    break
-                got += len(chunk)
-                if got > MAX_ZIP_BYTES:
-                    handle.close()
-                    tmp.unlink(missing_ok=True)
-                    raise UpdateError(
-                        "내려받을 파일이 너무 큽니다. 중단했습니다.")
-                handle.write(chunk)
-                if progress is not None:
-                    progress(got, total)
-    if got <= 0:
-        tmp.unlink(missing_ok=True)
-        raise UpdateError("내려받은 내용이 비어 있습니다.")
-    target.unlink(missing_ok=True)
-    tmp.replace(target)
+    tmp = work_dir() / ("download_%d_%d.part"
+                        % (os.getpid(), int(time.time() * 1000)))
+    try:
+        got = fetch_to_file(url, "application/vnd.github+json", tmp,
+                            timeout=120, progress=progress)
+        if got <= 0:
+            raise UpdateError("내려받은 내용이 비어 있습니다.")
+        if target.exists():
+            target.unlink()
+        tmp.replace(target)
+    finally:
+        if tmp.exists():
+            try:
+                tmp.unlink()
+            except OSError:
+                pass
     return target
 
 
-def _safe_members(archive):
-    """압축 안에서 바깥으로 빠져나가는 수상한 경로를 걸러 낸다."""
-    out = []
-    for info in archive.infolist():
-        name = info.filename.replace("\\", "/")
-        if name.startswith("/") or ".." in name.split("/"):
-            continue
-        out.append(info)
-    return out
+def _unzip_python(zip_path, folder):
+    """파이썬 zipfile 로 푼다. 부품이 없으면 False."""
+    try:
+        import zipfile
+    except ImportError:
+        return False
+    try:
+        with zipfile.ZipFile(zip_path) as archive:
+            safe = []
+            for info in archive.infolist():
+                # 압축 안에서 바깥 폴더로 빠져나가려는 수상한 경로는 걸러 낸다
+                name = info.filename.replace("\\", "/")
+                if name.startswith("/") or ".." in name.split("/"):
+                    continue
+                safe.append(info)
+            archive.extractall(folder, members=safe)
+    except zipfile.BadZipFile as exc:
+        raise UpdateError("받은 파일이 손상됐습니다. 다시 받아 주세요.") from exc
+    return True
+
+
+def _tar_path():
+    """zip 을 풀 수 있는 tar (윈도우 기본 tar.exe 또는 bsdtar)."""
+    if FORCE_BACKEND == "python":
+        return ""
+    return _system_tool("tar") or shutil.which("bsdtar") or ""
+
+
+def _unzip_tar(zip_path, folder):
+    """윈도우 기본 tar.exe 로 푼다. tar 는 '..' 이 든 경로를 스스로 거부한다."""
+    tar = _tar_path()
+    if not tar:
+        return False
+    # 한글 경로를 넘기지 않으려고 풀 폴더를 작업 위치로 삼고,
+    # zip 은 한 단계 위의 영어 이름으로 가리킨다.
+    relative = os.path.relpath(str(zip_path), str(folder))
+    try:
+        done = subprocess.run([tar, "-xf", relative], cwd=str(folder),
+                              capture_output=True, timeout=120, **_hidden())
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        raise UpdateError("압축을 풀지 못했습니다.\n(%s)" % exc) from exc
+    if done.returncode != 0:
+        reason = done.stderr.decode("utf-8", "replace").strip().splitlines()
+        raise UpdateError("받은 파일을 풀지 못했습니다. 다시 받아 주세요.\n(%s)"
+                          % (reason[-1] if reason else done.returncode))
+    return True
 
 
 def extract(zip_path):
     """내려받은 꾸러미를 풀고, 캡처도구가 맞는지 확인한 뒤 그 폴더를 돌려준다."""
-    folder = work_dir() / "새버전"
+    folder = work_dir() / EXTRACT_NAME
     shutil.rmtree(folder, ignore_errors=True)
     folder.mkdir(parents=True, exist_ok=True)
-    try:
-        with zipfile.ZipFile(zip_path) as archive:
-            archive.extractall(folder, members=_safe_members(archive))
-    except zipfile.BadZipFile as exc:
-        raise UpdateError("받은 파일이 손상됐습니다. 다시 받아 주세요.") from exc
+    if FORCE_BACKEND == "curl":
+        unpacked = _unzip_tar(zip_path, folder)
+    else:
+        unpacked = _unzip_python(zip_path, folder) or \
+            _unzip_tar(zip_path, folder)
+    if not unpacked:
+        raise UpdateError("이 컴퓨터에서 압축을 풀 도구를 찾지 못했습니다.")
 
     # GitHub 꾸러미는 'hbd06060-cmd-capture-tool-abc1234/' 한 겹에 싸여 있다
     root = folder
@@ -454,13 +646,16 @@ def _forget_caches(target_root: Path):
 def cleanup_work(keep_backups=3):
     """작업 폴더를 정리한다. 백업은 최근 몇 개만 남긴다."""
     folder = work_dir()
-    try:
-        (folder / "받은파일.zip").unlink(missing_ok=True)
-        for leftover in folder.glob("받는중_*.part"):
-            leftover.unlink(missing_ok=True)
-    except Exception:
-        pass
-    shutil.rmtree(folder / "새버전", ignore_errors=True)
+    leftovers = [folder / ZIP_NAME]
+    for pattern in ("download_*.part", "manifest_*.json"):
+        leftovers.extend(folder.glob(pattern))
+    for path in leftovers:
+        try:
+            if path.exists():
+                path.unlink()
+        except OSError:
+            pass
+    shutil.rmtree(folder / EXTRACT_NAME, ignore_errors=True)
     try:
         backups = sorted((p for p in folder.iterdir()
                           if p.is_dir() and p.name.startswith("백업_")),
