@@ -540,8 +540,7 @@ class SettingsDialog(QDialog):
                 "창 없이 조용히 시작하도록 올바르게 등록돼 있습니다.")
 
     def _show_update_note(self):
-        """마지막으로 확인한 때와, 비공개 저장소일 때 필요한 안내."""
-        import updater
+        """마지막으로 확인한 때와 건너뛰기로 한 버전."""
         parts = []
         last = str(CONFIG.get("update_last_check") or "")
         if last:
@@ -551,11 +550,8 @@ class SettingsDialog(QDialog):
         skipped = str(CONFIG.get("update_skip_version") or "")
         if skipped:
             parts.append("v%s 는 건너뛰기로 해 두셨습니다." % skipped)
-        if not updater.token():
-            parts.append(
-                "저장소가 비공개라면 접근 열쇠가 필요합니다. "
-                "아래 파일에 GitHub 토큰 한 줄을 넣어 주세요.\n%s"
-                % updater.token_path())
+        # 토큰 안내는 여기서 늘 띄우지 않는다. 저장소가 공개라 필요 없고,
+        # 비공개로 바뀌어 막히면 확인할 때 오류 메시지가 따로 알려 준다.
         self.update_note.setText("\n".join(parts))
 
     def _check_update_now(self):
